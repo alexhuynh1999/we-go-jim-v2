@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { ExerciseSet, Field } from "./types";
+  import { settings } from "./settings.js";
+  import { convertWeight } from "./unit-convert.js";
 
   let {
     set = { reps: 0 } as ExerciseSet,
@@ -21,6 +23,25 @@
   const showTimeOnly = $derived(hasTime && !hasDistance && !hasWeight);
   const showWeightTime = $derived(hasWeight && hasTime && !hasReps && !hasDistance);
 
+  // ─── Weight unit conversion ───
+  const weightUnit = $derived($settings.weightUnit);
+  const weightUnitLabel = $derived(weightUnit);
+
+  /** Convert a kg value to the current display unit. */
+  function displayWeight(kg: number | undefined): string {
+    if (kg === undefined || kg === null) return "";
+    const converted = convertWeight(kg, "kg", weightUnit);
+    return Math.round(converted * 10) / 10 + "";
+  }
+
+  /** Convert a display-unit value back to kg for storage. */
+  function inputWeightToKg(raw: string): number | undefined {
+    const num = parseFloat(raw);
+    if (isNaN(num)) return undefined;
+    const converted = convertWeight(num, weightUnit, "kg");
+    return Math.round(converted * 100) / 100;
+  }
+
   function updateField<K extends keyof ExerciseSet>(key: K, value: ExerciseSet[K]) {
     onUpdate({ ...set, [key]: value });
   }
@@ -35,11 +56,11 @@
         <input
           type="number"
           class="field-input"
-          placeholder={lastSessionSet?.weight?.toString() ?? "kg"}
-          value={set.weight ?? ""}
-          oninput={(e) => updateField("weight", parseFloat((e.target as HTMLInputElement).value) || undefined)}
+          placeholder={displayWeight(lastSessionSet?.weight)}
+          value={displayWeight(set.weight)}
+          oninput={(e) => updateField("weight", inputWeightToKg((e.target as HTMLInputElement).value))}
         />
-        <span class="field-unit">kg</span>
+        <span class="field-unit">{weightUnitLabel}</span>
       </div>
       <span class="field-sep">×</span>
       <div class="input-group">
@@ -99,11 +120,11 @@
         <input
           type="number"
           class="field-input"
-          placeholder={lastSessionSet?.weight?.toString() ?? "kg"}
-          value={set.weight ?? ""}
-          oninput={(e) => updateField("weight", parseFloat((e.target as HTMLInputElement).value) || undefined)}
+          placeholder={displayWeight(lastSessionSet?.weight)}
+          value={displayWeight(set.weight)}
+          oninput={(e) => updateField("weight", inputWeightToKg((e.target as HTMLInputElement).value))}
         />
-        <span class="field-unit">kg</span>
+        <span class="field-unit">{weightUnitLabel}</span>
       </div>
       <span class="field-sep">·</span>
       <div class="input-group">
