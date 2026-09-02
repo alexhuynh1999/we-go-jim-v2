@@ -12,9 +12,11 @@
   import SummaryModal from "./lib/SummaryModal.svelte";
   import ExercisePickerInline from "./lib/ExercisePickerInline.svelte";
   import { sessionReducer } from "./lib/session-machine.js";
-  import { saveSession, listSessions, deleteSession } from "./lib/session-store.js";
-  import type { WorkoutSession, SessionExercise, Exercise, SessionMachineState } from "./lib/types.js";
+  import { saveSession, listSessions, deleteSession, saveTemplate } from "./lib/session-store.js";
+  import type { WorkoutSession, SessionExercise, Exercise, SessionMachineState, WorkoutTemplate, TemplateExercise } from "./lib/types.js";
   import type { Field, Equipment, MuscleGroup } from "./lib/types.js";
+  import TemplateBuilder from "./lib/TemplateBuilder.svelte";
+  import TemplatePreview from "./lib/TemplatePreview.svelte";
 
   const tabs = [
     { id: "home" as const, icon: "home", label: "Home" },
@@ -25,6 +27,17 @@
 
   // Workout flow phases: "idle" | "picker" | "session" | "summary"
   let workoutPhase = $state<"idle" | "picker" | "session" | "summary">("idle");
+
+  // Template flow phases
+  let showTemplateBuilder = $state(false);
+  let showTemplatePreview = $state(false);
+  let previewTemplate = $state<WorkoutTemplate | null>(null);
+
+  // For "Save as Template" from summary: pre-fill builder with session data
+  let saveAsTemplateData = $state<{ name: string; exercises: TemplateExercise[] } | null>(null);
+
+  // For "Save as Template" from history
+  let historyTemplateData = $state<{ name: string; exercises: TemplateExercise[] } | null>(null);
 
   // Pending exercises selected from picker before session starts
   let pendingExercises = $state<SessionExercise[]>([]);
@@ -147,8 +160,117 @@
     workoutPhase = "summary";
   }
 
-  function handleSaveAsTemplate() {
-    // For now, just a no-op placeholder
+  // ─── Template flow ───
+
+  function handleCreateTemplate() {
+    saveAsTemplateData = null;
+    showTemplateBuilder = true;
+  }
+
+  function handleStartTemplate(template: WorkoutTemplate) {
+    if (resumableSession) {
+      // If there's a session in progress, we need to handle it first
+      showAbandonConfirm = true;
+      // Store the selected template for after abandon resolves
+      previewTemplate = template;
+      return;
+    }
+    previewTemplate = template;
+    showTemplatePreview = true;
+  }
+
+  function startSessionFromTemplate() {
+    if (!previewTemplate) return;
+    const now = new Date().toISOString();
+
+    // Create SessionExercise items from template exercises
+    const exercises: SessionExercise[] = [];
+    for (const te of previewTemplate.exercises) {
+      exercises.push({
+        exerciseId: te.exerciseId,
+        exerciseName: "", // Will be resolved by SessionView
+        fields: [] as Field[],
+        muscleGroups: [] as MuscleGroup[],
+        equipment: te.equipment,
+        sets: Array.from({ length: te.setCount }, () => ({})),
+      });
+    }
+
+    const newSession: WorkoutSession = {
+      id: crypto.randomUUID(),
+      startedAt: now,
+      endedAt: null,
+      templateId: previewTemplate.id,
+      name: previewTemplate.name,
+      exercises,
+    };
+
+    // Update template usage stats
+    const updatedTemplate: WorkoutTemplate = {
+      ...previewTemplate,
+      lastUsedAt: now,
+      useCount: previewTemplate.useCount + 1,
+    };
+    saveTemplate(updatedTemplate);
+
+    machine = sessionReducer(machine, { type: "START_SESSION", session: newSession });
+    workoutPhase = "session";
+    showTemplatePreview = false;
+    previewTemplate = null;
+  }
+
+  function handleSaveAsTemplateFromSummary() {
+    if (!machine.session) return;
+
+    // Extract template data from session: exercise order, equipment, set count
+    // Strip weights/reps/duration/distance/notes (all set data)
+    const templateExercises: TemplateExercise[] = machine.session.exercises.map((ex) => ({
+      exerciseId: ex.exerciseId,
+      equipment: ex.equipment,
+      setCount: ex.sets.length || 3,
+    }));
+
+    saveAsTemplateData = {
+      name: machine.session.name,
+      exercises: templateExercises,
+    };
+    showTemplateBuilder = true;
+  }
+
+  function handleSaveAsTemplateFromHistory(session: WorkoutSession) {
+    const templateExercises: TemplateExercise[] = session.exercises.map((ex) => ({
+      exerciseId: ex.exerciseId,
+      equipment: ex.equipment,
+      setCount: ex.sets.length || 3,
+    }));
+
+    historyTemplateData = {
+      name: session.name,
+      exercises: templateExercises,
+    };
+    showTemplateBuilder = true;
+  }
+
+  async function handleSaveTemplate(name: string, exercises: TemplateExercise[]) {
+    const now = new Date().toISOString();
+    const template: WorkoutTemplate = {
+      id: crypto.randomUUID(),
+      name,
+      exercises,
+      createdAt: now,
+      lastUsedAt: now,
+      useCount: 0,
+    };
+    await saveTemplate(template);
+    showTemplateBuilder = false;
+    saveAsTemplateData = null;
+    historyTemplateData = null;
+  }
+
+  function handleCloseTemplateBuilder() {
+    showTemplateBuilder = false;
+    saveAsTemplateData = null;
+    historyTemplateData = null;
   }
 
   function handleDoneSummary() {
@@ -172,7 +294,12 @@
     resumableSession = null;
     showAbandonConfirm = false;
     pendingExercises = [];
-    workoutPhase = "picker";
+    // If we were about to start a template, continue to preview
+    if (previewTemplate) {
+      showTemplatePreview = true;
+    } else {
+      workoutPhase = "picker";
+    }
   }
 
   function handleAbandonContinue() {
@@ -182,6 +309,7 @@
       workoutPhase = "session";
     }
     showAbandonConfirm = false;
+    previewTemplate = null;
   }
 
   function handlePillClick() {
@@ -215,6 +343,15 @@
           onFinish={handleFinishWorkout}
         />
       {/if}
+    {:else if showTemplatePreview && previewTemplate}
+      <TemplatePreview
+        template={previewTemplate}
+        onStart={startSessionFromTemplate}
+        onBack={() => {
+          showTemplatePreview = false;
+          previewTemplate = null;
+        }}
+      />
     {:else if subPage === "exercises"}
       <Exercises onBack={goBack} />
     {:else if subPage === "data-management"}}
@@ -222,9 +359,12 @@
     {:else if $currentTab === "home"}
       <Home {lastWorkout} onStartWorkout={startWorkout} {workoutActive} resumableSession={resumableSession} />
     {:else if $currentTab === "history"}
-      <History />
+      <History onSaveAsTemplate={handleSaveAsTemplateFromHistory} />
     {:else if $currentTab === "templates"}
-      <Templates />
+      <Templates
+        onStartTemplate={handleStartTemplate}
+        onCreateTemplate={handleCreateTemplate}
+      />
     {:else if $currentTab === "settings"}
       <Settings onshow={showSubPage} />
     {/if}
@@ -255,8 +395,18 @@
     <SummaryModal
       session={machine.session}
       showSaveAsTemplate={machine.session.templateId === null}
-      onSaveAsTemplate={handleSaveAsTemplate}
+      onSaveAsTemplate={handleSaveAsTemplateFromSummary}
       onDone={handleDoneSummary}
+    />
+  {/if}
+
+  <!-- Template Builder -->
+  {#if showTemplateBuilder}
+    <TemplateBuilder
+      initialName={saveAsTemplateData?.name ?? historyTemplateData?.name ?? ""}
+      initialExercises={saveAsTemplateData?.exercises ?? historyTemplateData?.exercises ?? []}
+      onSave={handleSaveTemplate}
+      onCancel={handleCloseTemplateBuilder}
     />
   {/if}
 
@@ -282,7 +432,7 @@
   {/if}
 
   <!-- Bottom tab bar -->
-  {#if !subPage && workoutPhase !== "session" && workoutPhase !== "summary"}
+  {#if !subPage && workoutPhase !== "session" && workoutPhase !== "summary" && !showTemplatePreview}
     <div class="tab-bar" role="tablist">
       {#each tabs as tab}
         <TabBar
@@ -296,8 +446,6 @@
     </div>
   {/if}
 </div>
-
-<!-- Exercise picker sub-component (inline to keep picker logic in App) -->
 
 <style>
   :global(*) {
