@@ -8,6 +8,8 @@ Labels: `wayfinder:map`
 
 A spec for a free, PWA-based gym tracking app for a single user. The user opens the app, picks a quick workout or loads a template, logs sets with exercise-category-specific fields (weight × reps, time × distance, etc.), gets a rest-timer suggestion after each set, and sees greyed-out suggestions from their last session. Data lives in localStorage, backed up via JSON export/import. Zero backend, zero paid accounts, zero app-store fees.
 
+**Master spec**: [#1 — We Go Jim — Gym Tracking PWA (Full Spec)](https://github.com/alexhuynh1999/we-go-jim-v2/issues/1) (ready-for-agent)
+
 ## Notes
 
 - **Domain**: fitness / personal workout tracking
@@ -28,6 +30,8 @@ A spec for a free, PWA-based gym tracking app for a single user. The user opens 
 
 ## Not yet specified
 
+_(All core decisions are resolved and synthesized in the master spec.)_
+
 - **Progressive overload suggestion formula**: a reach goal. The logic for computing the "greyed-out suggestion" value is deferred. For now, the spec only says "show the last session's values as greyed-out hints."
 - **Sound/vibration for rest timer**: whether the timer plays a sound or vibrates (or both) when it hits zero. Spec enough to leave room for it, decide in implementation.
 - **PWA manifest specifics**: icons, splash screen, service-worker caching strategy. Deferred to implementation phase.
@@ -44,8 +48,10 @@ A spec for a free, PWA-based gym tracking app for a single user. The user opens 
 
 ## Child tickets
 
+All closed. Master spec at [#1](https://github.com/alexhuynh1999/we-go-jim-v2/issues/1).
+
 - **[002 — Workout & template data model](./docs/decisions/002-workout-template-data-model.md)** (wayfinder:grilling) — **closed** ✅
 - **[003 — Home screen & workout flow](./docs/decisions/003-home-workout-flow.md)** (wayfinder:grilling + wayfinder:prototype) — **closed** ✅
-- **[004 — Template builder](./docs/decisions/004-template-builder.md)** — Template list (last-used sort, tap-to-start, swipe-delete, drag-reorder in edit mode, name-only search), builder as sheet modal (name + add-exercise + equipment + set-count stepper), save-workout-as-template (from summary or history long-press, carries order/equipment/set-count, editable name), optional description, no mid-workout editing, deletes don't affect history. ✅
+- **[004 — Template builder](./docs/decisions/004-template-builder.md)** — **closed** ✅
 - **[005 — History & data management](./docs/decisions/005-history-data-management.md)** (wayfinder:grilling + wayfinder:prototype) — **closed** ✅
 - **[006 — Settings](./docs/decisions/006-settings.md)** (wayfinder:grilling) — **closed** ✅
