@@ -275,4 +275,80 @@ describe("session-store", () => {
       expect(await listTemplates()).toEqual([]);
     });
   });
+
+  describe("persistence flow (auto-save pattern)", () => {
+    it("persists and retrieves an in-progress session", async () => {
+      const session = makeSession({ endedAt: null });
+      await saveSession(session);
+      const loaded = await loadSession(session.id);
+      expect(loaded).not.toBeNull();
+      expect(loaded?.endedAt).toBeNull();
+    });
+
+    it("persists mutation updates (re-save with new data)", async () => {
+      const session = makeSession({ endedAt: null });
+      await saveSession(session);
+
+      // Simulate adding a set (mutation)
+      const updated = {
+        ...session,
+        exercises: [
+          {
+            ...session.exercises[0],
+            sets: [...session.exercises[0].sets, { weight: 100, reps: 5 }],
+          },
+        ],
+      };
+      await saveSession(updated);
+
+      const loaded = await loadSession(session.id);
+      expect(loaded?.exercises[0].sets).toHaveLength(3);
+      expect(loaded?.exercises[0].sets[2]?.weight).toBe(100);
+    });
+
+    it("persists finish (sets endedAt) and the finished session is retrievable", async () => {
+      const session = makeSession({ endedAt: null });
+      await saveSession(session);
+
+      const finished = {
+        ...session,
+        endedAt: "2024-01-15T11:30:00Z",
+      };
+      await saveSession(finished);
+
+      const loaded = await loadSession(session.id);
+      expect(loaded?.endedAt).toBe("2024-01-15T11:30:00Z");
+    });
+
+    it("detects an in-progress session via listSessions", async () => {
+      await saveSession(makeSession({ id: "s-finished", endedAt: "2024-01-15T11:00:00Z" }));
+      await saveSession(makeSession({ id: "s-ip", endedAt: null }));
+
+      const all = await listSessions();
+      const inProgress = all.find((s) => s.endedAt === null);
+      expect(inProgress).not.toBeNull();
+      expect(inProgress?.id).toBe("s-ip");
+    });
+
+    it("deleting an in-progress session removes it from the store", async () => {
+      await saveSession(makeSession({ id: "s-ip", endedAt: null }));
+      await deleteSession("s-ip");
+      const loaded = await loadSession("s-ip");
+      expect(loaded).toBeNull();
+    });
+  });
+
+  describe("history filtering", () => {
+    it("listSessions returns only finished sessions when filtered in application code", async () => {
+      await saveSession(makeSession({ id: "f1", startedAt: "2024-01-15T10:00:00Z", endedAt: "2024-01-15T11:00:00Z" }));
+      await saveSession(makeSession({ id: "ip", startedAt: "2024-01-17T10:00:00Z", endedAt: null }));
+      await saveSession(makeSession({ id: "f2", startedAt: "2024-01-16T10:00:00Z", endedAt: "2024-01-16T11:00:00Z" }));
+
+      const all = await listSessions();
+      const finished = all.filter((s) => s.endedAt !== null);
+      expect(finished).toHaveLength(2);
+      // Should be sorted by startedAt descending: f2 (Jan 16) then f1 (Jan 15)
+      expect(finished.map((s) => s.id)).toEqual(["f2", "f1"]);
+    });
+  });
 });
