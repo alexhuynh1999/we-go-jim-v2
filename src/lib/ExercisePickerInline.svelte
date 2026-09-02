@@ -1,15 +1,20 @@
 <script lang="ts">
   import type { Exercise } from "./types";
-  import exercisesData from "../data/exercises.json";
-
-  const exercises = exercisesData as Exercise[];
+  import { listExercises } from "./exercise-store";
 
   let {
     onAdd = (_: Exercise) => {},
     addedIds = new Set<string>(),
   } = $props();
 
+  let exercises = $state<Exercise[]>([]);
   let search = $state("");
+
+  $effect(() => {
+    listExercises().then((result) => {
+      exercises = result;
+    });
+  });
 
   const filteredExercises = $derived(
     search.trim() === ""

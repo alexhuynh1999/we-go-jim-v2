@@ -12,6 +12,18 @@
   } = $props();
 
   let showPicker = $state(false);
+  let lastSessionSets = $state(new Map<string, ExerciseSet | null>());
+
+  // Fetch last-session heaviest sets for each exercise
+  $effect(() => {
+    if (!session) return;
+    const ids = session.exercises.map((e) => e.exerciseId);
+    Promise.all(
+      ids.map(async (id) => [id, await getHeaviestSetForExercise(id)] as const),
+    ).then((entries) => {
+      lastSessionSets = new Map(entries);
+    });
+  });
 
   // Duration timer
   let elapsed = $state(0);
@@ -72,6 +84,15 @@
     const exercises = session.exercises.filter((_, i) => i !== exIdx);
     onUpdateSession({ ...session, exercises });
   }
+
+  function handleMoveExercise(fromIdx: number, toIdx: number) {
+    if (!session) return;
+    const exercises = [...session.exercises];
+    const [moved] = exercises.splice(fromIdx, 1);
+    if (!moved) return;
+    exercises.splice(toIdx, 0, moved);
+    onUpdateSession({ ...session, exercises });
+  }
 </script>
 
 <div class="session-view">
@@ -103,10 +124,14 @@
     {#each session?.exercises ?? [] as exercise, exIdx}
       <ExerciseCard
         exercise={exercise}
-        lastSessionSet={null}
+        lastSessionSet={lastSessionSets.get(exercise.exerciseId) ?? null}
+        totalExercises={session?.exercises.length ?? 0}
+        index={exIdx}
         onUpdateSets={(sets: ExerciseSet[]) => handleUpdateSets(exIdx, sets)}
         onAddSet={(e: MouseEvent) => handleAddSet(exIdx)}
         onDeleteExercise={(e: MouseEvent) => handleDeleteExercise(exIdx)}
+        onMoveUp={() => handleMoveExercise(exIdx, exIdx - 1)}
+        onMoveDown={() => handleMoveExercise(exIdx, exIdx + 1)}
       />
     {/each}
   </div>

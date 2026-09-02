@@ -12,16 +12,31 @@
       sets: [] as ExerciseSet[],
     } as SessionExercise,
     lastSessionSet = null as ExerciseSet | null,
+    totalExercises = 0,
+    index = 0,
     onUpdateSets = (_sets: ExerciseSet[]) => {},
     onAddSet = (_e: MouseEvent) => {},
     onDeleteExercise = (_e: MouseEvent) => {},
+    onMoveUp = () => {},
+    onMoveDown = () => {},
   } = $props();
 </script>
 
 <div class="exercise-card">
   <div class="card-header">
     <div class="card-header-left">
-      <span class="drag-handle material-symbols-outlined">drag_indicator</span>
+      <div class="move-buttons">
+        {#if index > 0}
+          <button class="move-btn" onclick={(e: MouseEvent) => { e.stopPropagation(); onMoveUp(); }} aria-label="Move exercise up">
+            <span class="material-symbols-outlined">keyboard_arrow_up</span>
+          </button>
+        {/if}
+        {#if index < totalExercises - 1}
+          <button class="move-btn" onclick={(e: MouseEvent) => { e.stopPropagation(); onMoveDown(); }} aria-label="Move exercise down">
+            <span class="material-symbols-outlined">keyboard_arrow_down</span>
+          </button>
+        {/if}
+      </div>
       <div class="exercise-info">
         <span class="exercise-name">{exercise.exerciseName}</span>
         <span class="exercise-equipment">{exercise.equipment}</span>
@@ -83,10 +98,35 @@
     gap: 10px;
   }
 
-  .drag-handle {
-    font-size: 20px;
+  .move-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-right: 2px;
+  }
+
+  .move-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
     color: var(--outline, #737872);
-    cursor: grab;
+    padding: 0;
+    height: 18px;
+    width: 20px;
+    border-radius: var(--radius-sm, 0.25rem);
+    transition: color 0.1s, background 0.1s;
+    line-height: 1;
+  }
+  .move-btn:hover {
+    color: var(--primary, #334537);
+    background: var(--surface-container, #f0eded);
+  }
+  .move-btn .material-symbols-outlined {
+    font-size: 18px;
+    font-variation-settings: 'FILL' 0;
   }
 
   .exercise-info {
