@@ -32,11 +32,11 @@
   }
 </script>
 
-<div class="picker-overlay" onclick={onDone} role="dialog" aria-label="Exercise picker">
-  <div class="picker-sheet" onclick={(e) => e.stopPropagation()} role="document">
+<div class="picker-overlay" onclick={(e: MouseEvent) => onDone(e)} role="dialog" aria-label="Exercise picker">
+  <div class="picker-sheet" onclick={(e: MouseEvent) => e.stopPropagation()} role="document">
     <div class="picker-header">
       <h2 class="picker-title">Add Exercises</h2>
-      <button class="done-btn" onclick={onDone}>Done</button>
+      <button class="done-btn" onclick={(e: MouseEvent) => onDone(e)}>Done</button>
     </div>
 
     <div class="search-wrap">
