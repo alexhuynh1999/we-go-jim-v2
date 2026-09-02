@@ -104,9 +104,9 @@
       <ExerciseCard
         exercise={exercise}
         lastSessionSet={null}
-        onUpdateSets={(sets) => handleUpdateSets(exIdx, sets)}
-        onAddSet={() => handleAddSet(exIdx)}
-        onDeleteExercise={() => handleDeleteExercise(exIdx)}
+        onUpdateSets={(sets: ExerciseSet[]) => handleUpdateSets(exIdx, sets)}
+        onAddSet={(e: MouseEvent) => handleAddSet(exIdx)}
+        onDeleteExercise={(e: MouseEvent) => handleDeleteExercise(exIdx)}
       />
     {/each}
   </div>

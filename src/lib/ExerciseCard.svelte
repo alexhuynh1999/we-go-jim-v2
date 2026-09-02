@@ -27,7 +27,7 @@
         <span class="exercise-equipment">{exercise.equipment}</span>
       </div>
     </div>
-    <button class="trash-btn" onclick={onDeleteExercise} aria-label="Remove exercise">
+    <button class="trash-btn" onclick={(e: MouseEvent) => onDeleteExercise(e)} aria-label="Remove exercise">
       <span class="material-symbols-outlined">delete</span>
     </button>
   </div>
@@ -39,12 +39,12 @@
         fields={exercise.fields}
         {lastSessionSet}
         index={i}
-        onUpdate={(updated) => {
-          const newSets = [...exercise.sets];
-          newSets[i] = updated;
+        onUpdate={(updated: ExerciseSet) => {
+          const newSets = exercise.sets.map((s, idx) => (idx === i ? updated : s));
           onUpdateSets(newSets);
         }}
-        onDelete={() => {
+        onDelete={(e: MouseEvent) => {
+          e.preventDefault();
           const newSets = exercise.sets.filter((_, idx) => idx !== i);
           onUpdateSets(newSets);
         }}
