@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { SessionExercise, ExerciseSet } from "./types";
   import SetRow from "./SetRow.svelte";
+  import RestTimerBar from "./RestTimerBar.svelte";
 
   let {
     exercise = {
@@ -14,11 +15,15 @@
     lastSessionSet = null as ExerciseSet | null,
     totalExercises = 0,
     index = 0,
+    showTimer = false as boolean,
+    timerRemaining = 0 as number,
+    timerTotal = 150 as number,
     onUpdateSets = (_sets: ExerciseSet[]) => {},
     onAddSet = (_e: MouseEvent) => {},
     onDeleteExercise = (_e: MouseEvent) => {},
     onMoveUp = () => {},
     onMoveDown = () => {},
+    onCompleteSet = (_setIndex: number) => {},
   } = $props();
 </script>
 
@@ -54,6 +59,7 @@
         fields={exercise.fields}
         {lastSessionSet}
         index={i}
+        showComplete={true}
         onUpdate={(updated: ExerciseSet) => {
           const newSets = exercise.sets.map((s, idx) => (idx === i ? updated : s));
           onUpdateSets(newSets);
@@ -63,9 +69,17 @@
           const newSets = exercise.sets.filter((_, idx) => idx !== i);
           onUpdateSets(newSets);
         }}
+        onComplete={(e: MouseEvent) => {
+          e.preventDefault();
+          onCompleteSet(i);
+        }}
       />
     {/each}
   </div>
+
+  {#if showTimer}
+    <RestTimerBar remaining={timerRemaining} total={timerTotal} />
+  {/if}
 
   <button class="add-set-btn" onclick={(e: MouseEvent) => onAddSet(e)}>
     <span class="material-symbols-outlined">add</span>

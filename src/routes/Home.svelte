@@ -7,6 +7,7 @@
     lastWorkout = null as WorkoutSession | null,
     onStartWorkout = (_e: MouseEvent) => {},
     workoutActive = false,
+    resumableSession = null as WorkoutSession | null,
   } = $props();
 
   function formatDuration(seconds: number): string {
@@ -100,6 +101,22 @@
       <p class="no-data">No workouts logged yet. Start your first session!</p>
     {/if}
   </section>
+
+  <!-- Resume Workout banner -->
+  {#if resumableSession}
+    <section class="resume-banner">
+      <div class="resume-banner-content">
+        <span class="material-symbols-outlined resume-banner-icon">play_circle</span>
+        <div class="resume-banner-text">
+          <span class="resume-banner-title">Resume Workout</span>
+          <span class="resume-banner-subtitle">You have an unfinished workout in progress</span>
+        </div>
+      </div>
+      <button class="resume-banner-btn" onclick={(e: MouseEvent) => onStartWorkout(e)}>
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </section>
+  {/if}
 
   <!-- Primary CTAs -->
   <section class="ctas">
@@ -234,6 +251,67 @@
     font-size: 14px;
     margin: 0;
     font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  /* ─── Resume banner ─── */
+  .resume-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--primary-fixed-dim, #b9cdbb);
+    border-radius: var(--radius-xl, 1rem);
+    padding: 12px 16px;
+    margin-bottom: var(--space-stack-md, 24px);
+    border: 1px solid var(--primary, #334537);
+  }
+
+  .resume-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .resume-banner-icon {
+    font-size: 28px;
+    color: var(--primary, #334537);
+  }
+
+  .resume-banner-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .resume-banner-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--on-surface, #1b1c1c);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .resume-banner-subtitle {
+    font-size: 12px;
+    color: var(--on-surface-variant, #434843);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .resume-banner-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--primary, #334537);
+    color: var(--on-primary, #fff);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s;
+  }
+  .resume-banner-btn:hover {
+    opacity: 0.9;
+  }
+  .resume-banner-btn .material-symbols-outlined {
+    font-size: 18px;
   }
 
   .last-workout-card {

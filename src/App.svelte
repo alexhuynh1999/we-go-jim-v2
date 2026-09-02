@@ -12,6 +12,7 @@
   import SummaryModal from "./lib/SummaryModal.svelte";
   import ExercisePickerInline from "./lib/ExercisePickerInline.svelte";
   import { sessionReducer } from "./lib/session-machine.js";
+  import { saveSession, listSessions, deleteSession } from "./lib/session-store.js";
   import type { WorkoutSession, SessionExercise, Exercise, SessionMachineState } from "./lib/types.js";
   import type { Field, Equipment, MuscleGroup } from "./lib/types.js";
 
@@ -34,8 +35,18 @@
   // Last completed workout for home dashboard
   let lastWorkout = $state<WorkoutSession | null>(null);
 
-  // Derived: is there an active workout?
-  let workoutActive = $derived(workoutPhase === "session" || workoutPhase === "picker");
+  // Resumable session from IndexedDB (for resume banner and abandon protection)
+  let resumableSession = $state<WorkoutSession | null>(null);
+
+  // Abandon confirmation dialog
+  let showAbandonConfirm = $state(false);
+
+  // Derived: is there an active workout (including resumable)?
+  let workoutActive = $derived(
+    workoutPhase === "session" ||
+    workoutPhase === "picker" ||
+    (workoutPhase === "idle" && resumableSession !== null)
+  );
 
   // Track whether we're on a sub-page
   let subPage = $state<string | null>(null);
@@ -62,6 +73,23 @@
     return () => mq.removeEventListener("change", handler);
   });
 
+  // Check for resumable session in IndexedDB on app open
+  $effect(() => {
+    listSessions().then((sessions) => {
+      const inProgress = sessions.find((s) => s.endedAt === null);
+      if (inProgress) {
+        resumableSession = inProgress;
+      }
+    });
+  });
+
+  // Auto-save: persist the session to IndexedDB on every mutation
+  $effect(() => {
+    if (machine.state === "in-progress" && machine.session) {
+      saveSession(machine.session);
+    }
+  });
+
   function showSubPage(page: string) {
     subPage = page;
   }
@@ -73,6 +101,10 @@
   // ─── Workout flow functions ───
 
   function startWorkout() {
+    if (resumableSession) {
+      showAbandonConfirm = true;
+      return;
+    }
     pendingExercises = [];
     workoutPhase = "picker";
   }
@@ -109,6 +141,9 @@
 
   function handleFinishWorkout() {
     machine = sessionReducer(machine, { type: "FINISH_SESSION" });
+    if (machine.session) {
+      saveSession(machine.session);
+    }
     workoutPhase = "summary";
   }
 
@@ -122,18 +157,49 @@
     }
     machine = sessionReducer(machine, { type: "ABANDON_SESSION" });
     workoutPhase = "idle";
+    resumableSession = null;
     navigateTo("history");
   }
 
   function updateSession(session: WorkoutSession) {
     machine = { ...machine, session };
   }
+
+  function handleAbandonAbandon() {
+    if (resumableSession) {
+      deleteSession(resumableSession.id);
+    }
+    resumableSession = null;
+    showAbandonConfirm = false;
+    pendingExercises = [];
+    workoutPhase = "picker";
+  }
+
+  function handleAbandonContinue() {
+    if (resumableSession) {
+      machine = sessionReducer(machine, { type: "RESUME_SESSION", session: resumableSession });
+      resumableSession = null;
+      workoutPhase = "session";
+    }
+    showAbandonConfirm = false;
+  }
+
+  function handlePillClick() {
+    if (workoutPhase === "session" || workoutPhase === "summary") return;
+    if (resumableSession) {
+      machine = sessionReducer(machine, { type: "RESUME_SESSION", session: resumableSession });
+      resumableSession = null;
+      workoutPhase = "session";
+    } else if (workoutPhase === "picker") {
+      startSession();
+    }
+  }
 </script>
 
 <div class="app-shell">
   <!-- Workout in progress pill -->
   {#if workoutActive && workoutPhase !== "summary"}
-    <div class="workout-pill" onclick={() => { if (workoutPhase !== "session") workoutPhase = "session"; }}>
+    <div class="workout-pill" onclick={handlePillClick}>
       <span class="pill-dot">●</span>
       <span>Workout in progress</span>
     </div>
@@ -154,7 +220,7 @@
     {:else if subPage === "data-management"}}
       <DataManagement onback={goBack} />
     {:else if $currentTab === "home"}
-      <Home {lastWorkout} onStartWorkout={startWorkout} {workoutActive} />
+      <Home {lastWorkout} onStartWorkout={startWorkout} {workoutActive} resumableSession={resumableSession} />
     {:else if $currentTab === "history"}
       <History />
     {:else if $currentTab === "templates"}
@@ -192,6 +258,27 @@
       onSaveAsTemplate={handleSaveAsTemplate}
       onDone={handleDoneSummary}
     />
+  {/if}
+
+  <!-- Abandon confirmation dialog -->
+  {#if showAbandonConfirm}
+    <div class="abandon-overlay" onclick={handleAbandonContinue} role="dialog" aria-label="Abandon workout confirmation">
+      <div class="abandon-sheet" onclick={(e) => e.stopPropagation()} role="document">
+        <div class="abandon-icon-wrap">
+          <span class="material-symbols-outlined abandon-icon">warning</span>
+        </div>
+        <h3 class="abandon-title">Workout in Progress</h3>
+        <p class="abandon-desc">You have a workout in progress. What would you like to do?</p>
+        <div class="abandon-actions">
+          <button class="abandon-btn abandon-btn--secondary" onclick={handleAbandonContinue}>
+            Continue Workout
+          </button>
+          <button class="abandon-btn abandon-btn--danger" onclick={handleAbandonAbandon}>
+            Abandon Workout
+          </button>
+        </div>
+      </div>
+    </div>
   {/if}
 
   <!-- Bottom tab bar -->
@@ -287,6 +374,87 @@
   @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+  }
+
+  /* ─── Abandon confirmation dialog styles ─── */
+  .abandon-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .abandon-sheet {
+    background: var(--surface, #fcf9f8);
+    border-radius: var(--radius-2xl, 1.5rem);
+    width: 100%;
+    max-width: 360px;
+    padding: 32px 24px 20px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    text-align: center;
+  }
+
+  .abandon-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .abandon-icon {
+    font-size: 40px;
+    color: var(--error, #ba1a1a);
+  }
+
+  .abandon-title {
+    font-family: var(--font-display, 'Source Serif 4', serif);
+    font-size: var(--text-headline-md, 24px);
+    font-weight: 500;
+    color: var(--on-surface, #1b1c1c);
+    margin: 0 0 8px 0;
+  }
+
+  .abandon-desc {
+    font-family: var(--font-body, Inter, sans-serif);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--on-surface-variant, #434843);
+    margin: 0 0 24px 0;
+  }
+
+  .abandon-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .abandon-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-md, 0.5rem);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .abandon-btn--secondary {
+    background: var(--primary, #334537);
+    color: var(--on-primary, #fff);
+  }
+
+  .abandon-btn--danger {
+    background: var(--error-container, #ffdad6);
+    color: var(--on-error-container, #410002);
+  }
+
+  .abandon-btn:hover {
+    opacity: 0.9;
   }
 
   /* ─── Picker overlay styles ─── */

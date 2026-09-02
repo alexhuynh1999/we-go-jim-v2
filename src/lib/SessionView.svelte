@@ -1,15 +1,54 @@
 <script lang="ts">
   import type { WorkoutSession, ExerciseSet, SessionExercise, Exercise, ExerciseSource } from "./types";
   import type { Field, Equipment, MuscleGroup } from "./types";
+  import type { RestTimerState } from "./types";
   import ExerciseCard from "./ExerciseCard.svelte";
   import ExercisePicker from "./ExercisePicker.svelte";
   import { getHeaviestSetForExercise } from "./session-store";
+  import { createRestTimer, startTimer, tick } from "./rest-timer";
+  import { settings } from "./settings";
 
   let {
     session = null as WorkoutSession | null,
     onUpdateSession = (_s: WorkoutSession) => {},
     onFinish = (_e: MouseEvent) => {},
   } = $props();
+
+  // ─── Rest timer state ───
+  let restTimer = $state<RestTimerState>(createRestTimer(150));
+  let activeTimerExerciseIdx = $state<number | null>(null);
+  let timerInterval: ReturnType<typeof setInterval> | undefined;
+
+  // Set up interval when timer is running, tear down when stopped
+  $effect(() => {
+    if (restTimer.running) {
+      timerInterval = setInterval(() => {
+        restTimer = tick(restTimer);
+      }, 1000);
+    } else {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = undefined;
+      }
+      // Clear the active index when timer reaches 0
+      if (restTimer.remaining === 0) {
+        activeTimerExerciseIdx = null;
+      }
+    }
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = undefined;
+      }
+    };
+  });
+
+  function handleCompleteSet(exIdx: number) {
+    // Start or reset the rest timer
+    const total = $settings.restTimerSeconds;
+    restTimer = startTimer(createRestTimer(total));
+    activeTimerExerciseIdx = exIdx;
+  }
 
   let showPicker = $state(false);
   let lastSessionSets = $state(new Map<string, ExerciseSet | null>());
@@ -27,17 +66,17 @@
 
   // Duration timer
   let elapsed = $state(0);
-  let timerInterval: ReturnType<typeof setInterval> | undefined;
+  let sessionTimerInterval: ReturnType<typeof setInterval> | undefined;
 
   $effect(() => {
     if (session && !session.endedAt) {
       const start = new Date(session.startedAt).getTime();
-      timerInterval = setInterval(() => {
+      sessionTimerInterval = setInterval(() => {
         elapsed = Math.floor((Date.now() - start) / 1000);
       }, 1000);
     }
     return () => {
-      if (timerInterval) clearInterval(timerInterval);
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
     };
   });
 
@@ -127,11 +166,15 @@
         lastSessionSet={lastSessionSets.get(exercise.exerciseId) ?? null}
         totalExercises={session?.exercises.length ?? 0}
         index={exIdx}
+        showTimer={activeTimerExerciseIdx === exIdx && restTimer.running}
+        timerRemaining={restTimer.remaining}
+        timerTotal={restTimer.total}
         onUpdateSets={(sets: ExerciseSet[]) => handleUpdateSets(exIdx, sets)}
         onAddSet={(e: MouseEvent) => handleAddSet(exIdx)}
         onDeleteExercise={(e: MouseEvent) => handleDeleteExercise(exIdx)}
         onMoveUp={() => handleMoveExercise(exIdx, exIdx - 1)}
         onMoveDown={() => handleMoveExercise(exIdx, exIdx + 1)}
+        onCompleteSet={(_setIdx: number) => handleCompleteSet(exIdx)}
       />
     {/each}
   </div>

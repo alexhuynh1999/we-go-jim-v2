@@ -8,8 +8,10 @@
     fields = [] as Field[],
     lastSessionSet = null as ExerciseSet | null,
     index = 0,
+    showComplete = false as boolean,
     onUpdate = (_: ExerciseSet) => {},
     onDelete = (_e: MouseEvent) => {},
+    onComplete = (_e: MouseEvent) => {},
   } = $props();
 
   const hasWeight = $derived(fields.includes("weight"));
@@ -139,6 +141,11 @@
       </div>
     {/if}
 
+    {#if showComplete}
+      <button class="complete-set-btn" onclick={(e: MouseEvent) => onComplete(e)} aria-label="Complete set">
+        <span class="material-symbols-outlined">check_circle</span>
+      </button>
+    {/if}
     <button class="delete-set-btn" onclick={(e: MouseEvent) => onDelete(e)} aria-label="Delete set">
       <span class="material-symbols-outlined">remove_circle</span>
     </button>
@@ -230,5 +237,23 @@
   .delete-set-btn:focus-visible {
     opacity: 1;
     color: var(--error, #ba1a1a);
+  }
+
+  .complete-set-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--outline, #737872);
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .complete-set-btn:hover,
+  .complete-set-btn:focus-visible {
+    opacity: 1;
+    color: var(--primary, #334537);
   }
 </style>
