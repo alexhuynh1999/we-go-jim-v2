@@ -9,7 +9,7 @@
   </header>
 
   <EmptyState
-    icon="📅"
+    icon="calendar_month"
     title="No Workouts Yet"
     description="Your completed workouts will appear here, grouped by month. Start logging to build your history."
     action={{ label: "Start a Workout", onclick: () => navigateTo("home") }}
@@ -18,14 +18,16 @@
 
 <style>
   .history-page {
-    padding: 24px 16px;
+    padding: var(--space-container-padding, 24px) var(--space-gutter, 16px);
     max-width: 480px;
     margin: 0 auto;
   }
   .page-header h2 {
-    font-size: 24px;
-    font-weight: 700;
+    font-family: var(--font-display, 'Source Serif 4', serif);
+    font-size: var(--text-headline-lg-mobile, 28px);
+    font-weight: 600;
+    line-height: var(--text-headline-lg-mobile-lh, 36px);
+    color: var(--on-surface, #1b1c1c);
     margin: 0 0 16px 0;
-    color: var(--text-primary, #fff);
   }
 </style>

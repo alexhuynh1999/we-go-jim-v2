@@ -7,10 +7,10 @@
   import Settings from "./routes/Settings.svelte";
 
   const tabs = [
-    { id: "home" as const, icon: "🏠", label: "Home" },
-    { id: "history" as const, icon: "📅", label: "History" },
-    { id: "templates" as const, icon: "📋", label: "Templates" },
-    { id: "settings" as const, icon: "⚙️", label: "Settings" },
+    { id: "home" as const, icon: "home", label: "Home" },
+    { id: "history" as const, icon: "show_chart", label: "History" },
+    { id: "templates" as const, icon: "fitness_center", label: "Templates" },
+    { id: "settings" as const, icon: "person", label: "Settings" },
   ];
 
   // Workout-in-progress pill (inactive in scaffold, wire up later)
@@ -61,10 +61,9 @@
   }
 
   :global(body) {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-      Ubuntu, Cantarell, sans-serif;
-    background: var(--bg, #0f0f23);
-    color: var(--text-primary, #e0e0e0);
+    font-family: var(--font-body, Inter, sans-serif);
+    background: var(--bg, #fcf9f8);
+    color: var(--on-surface, #1b1c1c);
     min-height: 100dvh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -90,14 +89,16 @@
 
   .tab-bar {
     display: flex;
-    background: var(--surface, #1a1a2e);
-    border-top: 1px solid var(--border, #2a2a4a);
+    background: var(--surface, #fcf9f8);
+    border-top: 1px solid var(--outline-variant, #c3c8c1);
     padding: 4px env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 4px) env(safe-area-inset-left, 0);
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   .workout-pill {
@@ -108,15 +109,16 @@
     top: 12px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--accent, #4fc3f7);
-    color: #fff;
+    background: var(--primary, #334537);
+    color: var(--on-primary, #fff);
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: var(--radius-full, 9999px);
     font-size: 13px;
     font-weight: 600;
     z-index: 200;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.08));
     cursor: pointer;
+    font-family: var(--font-body, Inter, sans-serif);
   }
   .pill-dot {
     font-size: 10px;

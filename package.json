@@ -18,6 +18,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@testing-library/svelte": "^5.0.0",
     "@tsconfig/svelte": "^5.0.0",
+    "@types/node": "^26.4.1",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^25.0.0",
     "svelte-check": "^4.0.0",

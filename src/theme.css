@@ -1,0 +1,128 @@
+/* ══════════════════════════════════════════════
+   Serene Strength — Design System Tokens
+   Colors, typography, spacing, border-radius, shadows
+   ══════════════════════════════════════════════ */
+
+:root {
+  /* ─── Colours ─── */
+  --bg: #fcf9f8;
+  --background: #fcf9f8;
+  --surface: #fcf9f8;
+  --surface-dim: #dcd9d9;
+  --surface-bright: #fcf9f8;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f6f3f2;
+  --surface-container: #f0eded;
+  --surface-container-high: #eae7e7;
+  --surface-container-highest: #e4e2e1;
+  --on-surface: #1b1c1c;
+  --on-surface-variant: #434843;
+  --inverse-surface: #303030;
+  --inverse-on-surface: #f3f0f0;
+  --outline: #737872;
+  --outline-variant: #c3c8c1;
+  --surface-tint: #506354;
+
+  --primary: #334537;
+  --on-primary: #ffffff;
+  --primary-container: #4a5d4e;
+  --on-primary-container: #c0d5c2;
+  --inverse-primary: #b7ccb9;
+  --primary-fixed: #d3e8d5;
+  --primary-fixed-dim: #b7ccb9;
+  --on-primary-fixed: #0e1f13;
+  --on-primary-fixed-variant: #394b3d;
+
+  --secondary: #845333;
+  --on-secondary: #ffffff;
+  --secondary-container: #fdbb94;
+  --on-secondary-container: #78492a;
+  --secondary-fixed: #ffdbc8;
+  --secondary-fixed-dim: #fab891;
+  --on-secondary-fixed: #321300;
+  --on-secondary-fixed-variant: #683c1e;
+
+  --tertiary: #444138;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #5b584f;
+  --on-tertiary-container: #d4cfc3;
+  --tertiary-fixed: #e8e2d6;
+  --tertiary-fixed-dim: #cbc6ba;
+  --on-tertiary-fixed: #1e1c14;
+  --on-tertiary-fixed-variant: #4a473e;
+
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  /* Deprecated / legacy alias (keep for smooth migration) */
+  --text-primary: #1b1c1c;
+  --text-secondary: #434843;
+  --surface-2: #e4e2e1;
+  --border: #c3c8c1;
+  --accent: #334537;
+  --accent-hover: #4a5d4e;
+  --success: #334537;
+  --danger: #ba1a1a;
+  --warning: #845333;
+
+  /* ─── Typography ─── */
+  --font-display: 'Source Serif 4', serif;
+  --font-body: 'Inter', sans-serif;
+
+  --text-display-lg: 48px;
+  --text-display-lg-lh: 56px;
+  --text-display-lg-weight: 600;
+  --text-display-lg-ls: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg-lh: 40px;
+  --text-headline-lg-weight: 600;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile-lh: 36px;
+  --text-headline-lg-mobile-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md-lh: 32px;
+  --text-headline-md-weight: 500;
+
+  --text-body-lg: 18px;
+  --text-body-lg-lh: 28px;
+  --text-body-lg-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md-lh: 24px;
+  --text-body-md-weight: 400;
+
+  --text-label-md: 14px;
+  --text-label-md-lh: 20px;
+  --text-label-md-weight: 600;
+  --text-label-md-ls: 0.05em;
+
+  --text-label-sm: 12px;
+  --text-label-sm-lh: 16px;
+  --text-label-sm-weight: 500;
+
+  /* ─── Spacing ─── */
+  --space-unit: 8px;
+  --space-container-padding: 24px;
+  --space-gutter: 16px;
+  --space-stack-sm: 12px;
+  --space-stack-md: 24px;
+  --space-section-gap: 48px;
+
+  /* ─── Border Radius ─── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
+}

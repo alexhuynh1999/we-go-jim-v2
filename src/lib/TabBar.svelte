@@ -13,7 +13,7 @@
   aria-label={label}
   {onclick}
 >
-  <span class="tab-icon">{icon}</span>
+  <span class="tab-icon material-symbols-outlined">{icon}</span>
   <span class="tab-label">{label}</span>
 </button>
 
@@ -36,16 +36,22 @@
     -webkit-tap-highlight-color: transparent;
   }
   .tab-button:hover {
-    color: var(--text-primary, #fff);
+    color: var(--on-surface, #1b1c1c);
   }
   .tab-button.active {
-    color: var(--accent, #4fc3f7);
+    color: var(--primary, #334537);
   }
   .tab-icon {
     font-size: 22px;
     line-height: 1;
+    font-variation-settings: 'FILL' 1;
+  }
+  .tab-button:not(.active) .tab-icon {
+    font-variation-settings: 'FILL' 0;
   }
   .tab-label {
     font-weight: 500;
+    font-family: var(--font-body, Inter, sans-serif);
+    font-size: var(--text-label-sm, 12px);
   }
 </style>
