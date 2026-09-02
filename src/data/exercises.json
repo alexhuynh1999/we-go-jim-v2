@@ -1,0 +1,626 @@
+[
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000001",
+    "name": "Bench Press (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest", "arms"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000002",
+    "name": "Bench Press (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest", "arms"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000003",
+    "name": "Incline Bench Press (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest", "shoulders"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000004",
+    "name": "Incline Bench Press (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest", "shoulders"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000005",
+    "name": "Decline Bench Press (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000006",
+    "name": "Chest Press (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000007",
+    "name": "Pec Deck (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000008",
+    "name": "Cable Fly (Cable)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000009",
+    "name": "Push-Up",
+    "fields": ["reps"],
+    "muscleGroups": ["chest", "arms", "core"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000010",
+    "name": "Dumbbell Fly",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000011",
+    "name": "Squat (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000012",
+    "name": "Squat (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000013",
+    "name": "Leg Press (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000014",
+    "name": "Romanian Deadlift (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs", "back"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000015",
+    "name": "Deadlift (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back", "legs", "full-body"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000016",
+    "name": "Leg Curl (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000017",
+    "name": "Leg Extension (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000018",
+    "name": "Lunge (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000019",
+    "name": "Lunge (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000020",
+    "name": "Calf Raise (Standing)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["barbell", "machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000021",
+    "name": "Calf Raise (Seated)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000022",
+    "name": "Hip Thrust (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000023",
+    "name": "Goblet Squat",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["dumbbell", "kettlebell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000024",
+    "name": "Pull-Up",
+    "fields": ["reps"],
+    "muscleGroups": ["back", "arms"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000025",
+    "name": "Lat Pulldown",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["cable", "machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000026",
+    "name": "Barbell Row",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000027",
+    "name": "Dumbbell Row",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000028",
+    "name": "Seated Cable Row",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000029",
+    "name": "T-Bar Row",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["barbell", "machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000030",
+    "name": "Face Pull",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders", "back"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000031",
+    "name": "Overhead Press (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders", "arms"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000032",
+    "name": "Overhead Press (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders", "arms"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000033",
+    "name": "Lateral Raise (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000034",
+    "name": "Front Raise (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000035",
+    "name": "Reverse Fly (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders", "back"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000036",
+    "name": "Arnold Press (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000037",
+    "name": "Upright Row (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["shoulders", "arms"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000038",
+    "name": "Bicep Curl (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["barbell", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000039",
+    "name": "Bicep Curl (Dumbbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000040",
+    "name": "Hammer Curl",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000041",
+    "name": "Concentration Curl",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000042",
+    "name": "Tricep Pushdown",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000043",
+    "name": "Skull Crusher (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["barbell", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000044",
+    "name": "Overhead Tricep Extension",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["dumbbell", "cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000045",
+    "name": "Close-Grip Bench Press",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["chest", "arms"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000046",
+    "name": "Plank",
+    "fields": ["time"],
+    "muscleGroups": ["core"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000047",
+    "name": "Cable Crunch",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000048",
+    "name": "Hanging Leg Raise",
+    "fields": ["reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000049",
+    "name": "Russian Twist",
+    "fields": ["reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["bodyweight", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000050",
+    "name": "Dead Bug",
+    "fields": ["reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000051",
+    "name": "Ab Wheel Rollout",
+    "fields": ["reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["other", "bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000052",
+    "name": "Pallof Press",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["core"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000053",
+    "name": "Wall Sit",
+    "fields": ["time"],
+    "muscleGroups": ["legs", "core"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000054",
+    "name": "Farmer's Walk",
+    "fields": ["weight", "distance"],
+    "muscleGroups": ["full-body"],
+    "equipment": ["dumbbell", "kettlebell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000055",
+    "name": "Suitcase Carry",
+    "fields": ["weight", "distance"],
+    "muscleGroups": ["full-body", "core"],
+    "equipment": ["dumbbell", "kettlebell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000056",
+    "name": "Kettlebell Swing",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["full-body", "legs"],
+    "equipment": ["kettlebell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000057",
+    "name": "Treadmill (Walking)",
+    "fields": ["time", "distance"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000058",
+    "name": "Treadmill (Running)",
+    "fields": ["time", "distance"],
+    "muscleGroups": ["legs", "full-body"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000059",
+    "name": "Stationary Bike",
+    "fields": ["time", "distance"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000060",
+    "name": "Rowing Machine",
+    "fields": ["time", "distance"],
+    "muscleGroups": ["full-body", "back", "legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000061",
+    "name": "Jump Rope",
+    "fields": ["time"],
+    "muscleGroups": ["legs", "full-body"],
+    "equipment": ["bodyweight", "other"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000062",
+    "name": "Burpee",
+    "fields": ["reps"],
+    "muscleGroups": ["full-body"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000063",
+    "name": "Mountain Climber",
+    "fields": ["reps", "time"],
+    "muscleGroups": ["core", "full-body"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000064",
+    "name": "Box Jump",
+    "fields": ["reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000065",
+    "name": "Step-Up",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["dumbbell", "barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000066",
+    "name": "Glute Bridge (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000067",
+    "name": "Bulgarian Split Squat",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["dumbbell", "barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000068",
+    "name": "Dips (Triceps)",
+    "fields": ["reps", "weight"],
+    "muscleGroups": ["arms", "chest"],
+    "equipment": ["bodyweight", "other"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000069",
+    "name": "Chin-Up",
+    "fields": ["reps"],
+    "muscleGroups": ["back", "arms"],
+    "equipment": ["bodyweight"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000070",
+    "name": "Good Morning (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back", "legs"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000071",
+    "name": "Hyperextension (Back Extension)",
+    "fields": ["reps"],
+    "muscleGroups": ["back"],
+    "equipment": ["bodyweight", "other"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000072",
+    "name": "Sumo Deadlift (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs", "back"],
+    "equipment": ["barbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000073",
+    "name": "Trap Bar Deadlift",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs", "back"],
+    "equipment": ["barbell", "other"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000074",
+    "name": "Preacher Curl (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["arms"],
+    "equipment": ["barbell", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000075",
+    "name": "Cable Woodchop",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["core", "shoulders"],
+    "equipment": ["cable"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000076",
+    "name": "Shrug (Barbell)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["back", "shoulders"],
+    "equipment": ["barbell", "dumbbell"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000077",
+    "name": "Smith Machine Squat",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["smith-machine"],
+    "source": "builtin"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000078",
+    "name": "Hack Squat (Machine)",
+    "fields": ["weight", "reps"],
+    "muscleGroups": ["legs"],
+    "equipment": ["machine"],
+    "source": "builtin"
+  }
+]
