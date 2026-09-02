@@ -1,0 +1,248 @@
+<script lang="ts">
+  import type { WorkoutSession, ExerciseSet, SessionExercise, Exercise, ExerciseSource } from "./types";
+  import type { Field, Equipment, MuscleGroup } from "./types";
+  import ExerciseCard from "./ExerciseCard.svelte";
+  import ExercisePicker from "./ExercisePicker.svelte";
+  import { getHeaviestSetForExercise } from "./session-store";
+
+  let {
+    session = null as WorkoutSession | null,
+    onUpdateSession = (_s: WorkoutSession) => {},
+    onFinish = (_e: MouseEvent) => {},
+  } = $props();
+
+  let showPicker = $state(false);
+
+  // Duration timer
+  let elapsed = $state(0);
+  let timerInterval: ReturnType<typeof setInterval> | undefined;
+
+  $effect(() => {
+    if (session && !session.endedAt) {
+      const start = new Date(session.startedAt).getTime();
+      timerInterval = setInterval(() => {
+        elapsed = Math.floor((Date.now() - start) / 1000);
+      }, 1000);
+    }
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  });
+
+  function formatDuration(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  function handleAddExercise(exercise: Exercise) {
+    if (!session) return;
+    const newExercise: SessionExercise = {
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      fields: exercise.fields as Field[],
+      muscleGroups: exercise.muscleGroups as MuscleGroup[],
+      equipment: exercise.equipment[0] ?? ("bodyweight" as Equipment),
+      sets: [],
+    };
+    onUpdateSession({
+      ...session,
+      exercises: [...session.exercises, newExercise],
+    });
+  }
+
+  function handleUpdateSets(exIdx: number, sets: ExerciseSet[]) {
+    if (!session) return;
+    const exercises = session.exercises.map((ex, i) =>
+      i === exIdx ? { ...ex, sets } : ex,
+    );
+    onUpdateSession({ ...session, exercises });
+  }
+
+  function handleAddSet(exIdx: number) {
+    if (!session) return;
+    const exercises = session.exercises.map((ex, i) =>
+      i === exIdx ? { ...ex, sets: [...ex.sets, {} as ExerciseSet] } : ex,
+    );
+    onUpdateSession({ ...session, exercises });
+  }
+
+  function handleDeleteExercise(exIdx: number) {
+    if (!session) return;
+    const exercises = session.exercises.filter((_, i) => i !== exIdx);
+    onUpdateSession({ ...session, exercises });
+  }
+</script>
+
+<div class="session-view">
+  <!-- Header -->
+  <div class="session-header">
+    <div class="session-header-top">
+      <h2 class="session-title">
+        {session?.name ?? "Quick Workout"}
+      </h2>
+      <span class="session-duration">{formatDuration(elapsed)}</span>
+    </div>
+    <div class="session-header-actions">
+      <button class="header-action-btn" onclick={() => (showPicker = true)}>
+        <span class="material-symbols-outlined">add</span>
+        <span>Exercise</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Exercise cards -->
+  <div class="exercises-list">
+    {#if session && session.exercises.length === 0}
+      <div class="empty-exercises">
+        <span class="material-symbols-outlined empty-icon">fitness_center</span>
+        <p>Tap "+ Exercise" to start adding exercises</p>
+      </div>
+    {/if}
+
+    {#each session?.exercises ?? [] as exercise, exIdx}
+      <ExerciseCard
+        exercise={exercise}
+        lastSessionSet={null}
+        onUpdateSets={(sets) => handleUpdateSets(exIdx, sets)}
+        onAddSet={() => handleAddSet(exIdx)}
+        onDeleteExercise={() => handleDeleteExercise(exIdx)}
+      />
+    {/each}
+  </div>
+
+  <!-- Finish button -->
+  <div class="finish-bar">
+    <button class="finish-btn" onclick={(e: MouseEvent) => onFinish(e)}>
+      <span class="material-symbols-outlined">check_circle</span>
+      <span>Finish Workout</span>
+    </button>
+  </div>
+</div>
+
+{#if showPicker}
+  <ExercisePicker
+    onAdd={handleAddExercise}
+    onDone={() => (showPicker = false)}
+  />
+{/if}
+
+<style>
+  .session-view {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 64px);
+    padding: 0 0 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .session-header {
+    padding: 16px var(--space-gutter, 16px);
+    background: var(--surface, #fcf9f8);
+    border-bottom: 1px solid var(--outline-variant, #c3c8c1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .session-header-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .session-title {
+    font-family: var(--font-display, 'Source Serif 4', serif);
+    font-size: var(--text-headline-md, 24px);
+    font-weight: 500;
+    color: var(--on-surface, #1b1c1c);
+    margin: 0;
+  }
+
+  .session-duration {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--on-surface-variant, #434843);
+    font-family: var(--font-body, Inter, sans-serif);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .session-header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border: 1px solid var(--outline-variant, #c3c8c1);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--surface-container-low, #f6f3f2);
+    color: var(--on-surface, #1b1c1c);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+  .header-action-btn:hover {
+    background: var(--surface-container, #f0eded);
+  }
+  .header-action-btn .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  .exercises-list {
+    flex: 1;
+    padding: 12px var(--space-gutter, 16px);
+  }
+
+  .empty-exercises {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 24px;
+    color: var(--on-surface-variant, #434843);
+    font-size: 14px;
+    text-align: center;
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+  .empty-icon {
+    font-size: 40px;
+    color: var(--outline, #737872);
+  }
+
+  .finish-bar {
+    padding: 12px var(--space-gutter, 16px);
+    border-top: 1px solid var(--outline-variant, #c3c8c1);
+    background: var(--surface, #fcf9f8);
+    position: sticky;
+    bottom: 0;
+  }
+
+  .finish-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-lg, 0.75rem);
+    background: var(--primary, #334537);
+    color: var(--on-primary, #fff);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+  .finish-btn:hover {
+    opacity: 0.9;
+  }
+</style>

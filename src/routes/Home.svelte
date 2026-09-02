@@ -1,13 +1,51 @@
 <script lang="ts">
   import EmptyState from "../lib/EmptyState.svelte";
   import { navigateTo } from "../lib/nav.js";
+  import type { WorkoutSession } from "../lib/types.js";
+
+  let {
+    lastWorkout = null as WorkoutSession | null,
+    onStartWorkout = (_e: MouseEvent) => {},
+    workoutActive = false,
+  } = $props();
+
+  function formatDuration(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  const lastWorkoutDuration = $derived.by(() => {
+    if (!lastWorkout?.startedAt || !lastWorkout?.endedAt) return null;
+    return Math.floor(
+      (new Date(lastWorkout.endedAt).getTime() - new Date(lastWorkout.startedAt).getTime()) / 1000,
+    );
+  });
+
+  const lastWorkoutSetCount = $derived(
+    lastWorkout?.exercises.reduce((acc, ex) => acc + ex.sets.length, 0) ?? 0,
+  );
+
+  function getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning.";
+    if (hour < 17) return "Good Afternoon.";
+    return "Good Evening.";
+  }
+
+  function getSubtitle(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Embrace the quiet strength of today.";
+    if (hour < 17) return "Keep the momentum going.";
+    return "The day's work is never truly done.";
+  }
 </script>
 
 <div class="home-page">
   <!-- Greeting -->
   <section class="greeting">
-    <h1 class="greeting-title">Good Morning.</h1>
-    <p class="greeting-subtitle">Embrace the quiet strength of today.</p>
+    <h1 class="greeting-title">{getGreeting()}</h1>
+    <p class="greeting-subtitle">{getSubtitle()}</p>
   </section>
 
   <!-- Stat cards -->
@@ -30,15 +68,42 @@
     </div>
   </section>
 
-  <!-- Last workout summary placeholder -->
+  <!-- Last workout summary -->
   <section class="last-workout">
     <h3 class="section-label">Last Workout</h3>
-    <p class="no-data">No workouts logged yet. Start your first session!</p>
+    {#if lastWorkout}
+      <div class="last-workout-card">
+        <div class="lw-header">
+          <span class="lw-name">{lastWorkout.name}</span>
+          <span class="lw-date">{new Date(lastWorkout.startedAt).toLocaleDateString()}</span>
+        </div>
+        <div class="lw-stats">
+          <span class="lw-stat">
+            <span class="lw-stat-value">{lastWorkout.exercises.length}</span>
+            <span class="lw-stat-label">exercises</span>
+          </span>
+          <span class="lw-stat-divider">·</span>
+          <span class="lw-stat">
+            <span class="lw-stat-value">{lastWorkoutSetCount}</span>
+            <span class="lw-stat-label">sets</span>
+          </span>
+          {#if lastWorkoutDuration !== null}
+            <span class="lw-stat-divider">·</span>
+            <span class="lw-stat">
+              <span class="lw-stat-value">{formatDuration(lastWorkoutDuration)}</span>
+              <span class="lw-stat-label"></span>
+            </span>
+          {/if}
+        </div>
+      </div>
+    {:else}
+      <p class="no-data">No workouts logged yet. Start your first session!</p>
+    {/if}
   </section>
 
   <!-- Primary CTAs -->
   <section class="ctas">
-    <button class="cta-primary" onclick={() => navigateTo("history")}>
+    <button class="cta-primary" onclick={(e: MouseEvent) => onStartWorkout(e)}>
       <span class="material-symbols-outlined cta-icon">play_arrow</span>
       <span class="cta-text">Start Workout</span>
     </button>
@@ -48,12 +113,13 @@
     </button>
   </section>
 
-  <!-- Activity hint -->
-  <EmptyState
-    icon="fitness_center"
-    title="Welcome to We Go Jim"
-    description="Tap 'Start Workout' to begin logging sets right away, or create a template for your favourite routines."
-  />
+  {#if !lastWorkout}
+    <EmptyState
+      icon="fitness_center"
+      title="Welcome to We Go Jim"
+      description="Tap 'Start Workout' to begin logging sets right away, or create a template for your favourite routines."
+    />
+  {/if}
 </div>
 
 <style>
@@ -168,6 +234,63 @@
     font-size: 14px;
     margin: 0;
     font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .last-workout-card {
+    background: var(--surface-container-low, #f6f3f2);
+    border-radius: var(--radius-xl, 1rem);
+    padding: 16px;
+    border: 1px solid var(--outline-variant, #c3c8c1);
+  }
+
+  .lw-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .lw-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--on-surface, #1b1c1c);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .lw-date {
+    font-size: 12px;
+    color: var(--on-surface-variant, #434843);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .lw-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lw-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .lw-stat-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--on-surface, #1b1c1c);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .lw-stat-label {
+    font-size: 12px;
+    color: var(--on-surface-variant, #434843);
+    font-family: var(--font-body, Inter, sans-serif);
+  }
+
+  .lw-stat-divider {
+    color: var(--outline, #737872);
+    font-size: 14px;
   }
 
   /* ─── CTAs ─── */

@@ -126,3 +126,77 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
+
+/* ══════════════════════════════════════════════
+   Dark mode overrides (applied via .dark on <html>)
+   ══════════════════════════════════════════════ */
+
+.dark {
+  /* ─── Colours ─── */
+  --bg: #1a1c1a;
+  --background: #1a1c1a;
+  --surface: #1a1c1a;
+  --surface-dim: #121412;
+  --surface-bright: #282a28;
+  --surface-container-lowest: #0c0e0c;
+  --surface-container-low: #1e201e;
+  --surface-container: #222422;
+  --surface-container-high: #2c2e2c;
+  --surface-container-highest: #373937;
+  --on-surface: #e1e3df;
+  --on-surface-variant: #c1c6be;
+  --inverse-surface: #e1e3df;
+  --inverse-on-surface: #1a1c1a;
+  --outline: #8b9089;
+  --outline-variant: #444944;
+  --surface-tint: #b7ccb9;
+
+  --primary: #b7ccb9;
+  --on-primary: #223525;
+  --primary-container: #394b3d;
+  --on-primary-container: #d3e8d5;
+  --inverse-primary: #334537;
+  --primary-fixed: #d3e8d5;
+  --primary-fixed-dim: #b7ccb9;
+  --on-primary-fixed: #0e1f13;
+  --on-primary-fixed-variant: #394b3d;
+
+  --secondary: #fab891;
+  --on-secondary: #4a2c14;
+  --secondary-container: #683c1e;
+  --on-secondary-container: #ffdbc8;
+  --secondary-fixed: #ffdbc8;
+  --secondary-fixed-dim: #fab891;
+  --on-secondary-fixed: #321300;
+  --on-secondary-fixed-variant: #683c1e;
+
+  --tertiary: #cbc6ba;
+  --on-tertiary: #333128;
+  --tertiary-container: #4a473e;
+  --on-tertiary-container: #e8e2d6;
+  --tertiary-fixed: #e8e2d6;
+  --tertiary-fixed-dim: #cbc6ba;
+  --on-tertiary-fixed: #1e1c14;
+  --on-tertiary-fixed-variant: #4a473e;
+
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+
+  /* Deprecated / legacy aliases */
+  --text-primary: #e1e3df;
+  --text-secondary: #c1c6be;
+  --surface-2: #373937;
+  --border: #444944;
+  --accent: #b7ccb9;
+  --accent-hover: #d3e8d5;
+  --success: #b7ccb9;
+  --danger: #ffb4ab;
+  --warning: #fab891;
+
+  /* ─── Shadows (darker in dark mode) ─── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
