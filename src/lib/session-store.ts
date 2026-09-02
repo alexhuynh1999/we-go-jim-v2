@@ -2,9 +2,12 @@ import type { WorkoutSession, WorkoutTemplate, ExerciseSet } from "./types";
 import { getHeaviestSet } from "./heaviest-set";
 
 const DB_NAME = "we-go-jim";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+
 const SESSIONS_STORE = "sessions";
 const TEMPLATES_STORE = "templates";
+const CUSTOM_EXERCISES_STORE = "customExercises";
+const EXERCISE_META_STORE = "exerciseMeta";
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -23,6 +26,12 @@ function openDB(): Promise<IDBDatabase> {
           keyPath: "id",
         });
         store.createIndex("lastUsedAt", "lastUsedAt", { unique: false });
+      }
+      if (!db.objectStoreNames.contains(CUSTOM_EXERCISES_STORE)) {
+        db.createObjectStore(CUSTOM_EXERCISES_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(EXERCISE_META_STORE)) {
+        db.createObjectStore(EXERCISE_META_STORE);
       }
     };
 
@@ -225,11 +234,13 @@ export async function clearAllData(): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(
-      [SESSIONS_STORE, TEMPLATES_STORE],
+      [SESSIONS_STORE, TEMPLATES_STORE, CUSTOM_EXERCISES_STORE, EXERCISE_META_STORE],
       "readwrite",
     );
     tx.objectStore(SESSIONS_STORE).clear();
     tx.objectStore(TEMPLATES_STORE).clear();
+    tx.objectStore(CUSTOM_EXERCISES_STORE).clear();
+    tx.objectStore(EXERCISE_META_STORE).clear();
     tx.oncomplete = () => {
       db.close();
       resolve();
