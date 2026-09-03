@@ -1,48 +1,13 @@
 import type { Exercise } from "./types";
 import builtinExercises from "../data/exercises.json";
+import {
+  openDB,
+  getStore,
+  STORE_CUSTOM_EXERCISES,
+  STORE_EXERCISE_META,
+} from "./db";
 
-const DB_NAME = "we-go-jim";
-const DB_VERSION = 2;
-
-const CUSTOM_EXERCISES_STORE = "customExercises";
-const EXERCISE_META_STORE = "exerciseMeta";
 const HIDDEN_BUILTINS_KEY = "hiddenBuiltins";
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains("sessions")) {
-        const store = db.createObjectStore("sessions", { keyPath: "id" });
-        store.createIndex("startedAt", "startedAt", { unique: false });
-      }
-      if (!db.objectStoreNames.contains("templates")) {
-        const store = db.createObjectStore("templates", { keyPath: "id" });
-        store.createIndex("lastUsedAt", "lastUsedAt", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(CUSTOM_EXERCISES_STORE)) {
-        db.createObjectStore(CUSTOM_EXERCISES_STORE, { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(EXERCISE_META_STORE)) {
-        db.createObjectStore(EXERCISE_META_STORE);
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-function getStore(
-  db: IDBDatabase,
-  storeName: string,
-  mode: IDBTransactionMode = "readonly",
-): IDBObjectStore {
-  const tx = db.transaction(storeName, mode);
-  return tx.objectStore(storeName);
-}
 
 // ─── Hidden built-in exercises ───
 
@@ -53,7 +18,7 @@ export async function getHiddenExerciseIds(): Promise<string[]> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     try {
-      const store = getStore(db, EXERCISE_META_STORE);
+      const store = getStore(db, STORE_EXERCISE_META);
       const request = store.get(HIDDEN_BUILTINS_KEY);
       request.onsuccess = () => {
         db.close();
@@ -79,7 +44,7 @@ export async function hideBuiltinExercise(id: string): Promise<void> {
   hidden.push(id);
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, EXERCISE_META_STORE, "readwrite");
+    const store = getStore(db, STORE_EXERCISE_META, "readwrite");
     const request = store.put(hidden, HIDDEN_BUILTINS_KEY);
     request.onsuccess = () => {
       db.close();
@@ -101,7 +66,7 @@ export async function unhideBuiltinExercise(id: string): Promise<void> {
   if (filtered.length === hidden.length) return; // wasn't hidden
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, EXERCISE_META_STORE, "readwrite");
+    const store = getStore(db, STORE_EXERCISE_META, "readwrite");
     const request = store.put(filtered, HIDDEN_BUILTINS_KEY);
     request.onsuccess = () => {
       db.close();
@@ -122,7 +87,7 @@ export async function unhideBuiltinExercise(id: string): Promise<void> {
 export async function getCustomExercises(): Promise<Exercise[]> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, CUSTOM_EXERCISES_STORE);
+    const store = getStore(db, STORE_CUSTOM_EXERCISES);
     const request = store.getAll();
     request.onsuccess = () => {
       db.close();
@@ -141,7 +106,7 @@ export async function getCustomExercises(): Promise<Exercise[]> {
 export async function saveCustomExercise(exercise: Exercise): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, CUSTOM_EXERCISES_STORE, "readwrite");
+    const store = getStore(db, STORE_CUSTOM_EXERCISES, "readwrite");
     const request = store.put(exercise);
     request.onsuccess = () => {
       db.close();
@@ -160,7 +125,7 @@ export async function saveCustomExercise(exercise: Exercise): Promise<void> {
 export async function deleteCustomExercise(id: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, CUSTOM_EXERCISES_STORE, "readwrite");
+    const store = getStore(db, STORE_CUSTOM_EXERCISES, "readwrite");
     const request = store.delete(id);
     request.onsuccess = () => {
       db.close();
@@ -209,7 +174,7 @@ export async function getExercise(
   // Check custom exercises
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, CUSTOM_EXERCISES_STORE);
+    const store = getStore(db, STORE_CUSTOM_EXERCISES);
     const request = store.get(id);
     request.onsuccess = () => {
       db.close();
