@@ -14,15 +14,11 @@
   function handleOverlayClick(e: MouseEvent) {
     onClose();
   }
-
-  function handleSheetClick(e: MouseEvent) {
-    e.stopPropagation();
-  }
 </script>
 
 {#if show}
-  <div class="action-sheet-overlay" onclick={handleOverlayClick} role="dialog" aria-label={title || "Actions"}>
-    <div class="action-sheet" onclick={handleSheetClick} role="document">
+  <div class="action-sheet-overlay" onclick={(e) => e.target === e.currentTarget && handleOverlayClick(e)} role="dialog" aria-label={title || "Actions"} tabindex="-1" onkeydown={(e) => e.key === 'Escape' && handleOverlayClick(e)}>
+    <div class="action-sheet">
       {#if title}
         <div class="action-sheet-title">{title}</div>
       {/if}

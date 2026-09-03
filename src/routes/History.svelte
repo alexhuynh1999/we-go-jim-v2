@@ -125,6 +125,8 @@
         {#each group.sessions as session}
           <div
             class="history-card"
+            role="button"
+            tabindex="0"
             onpointerdown={(e) => handlePointerDown(e, session)}
             onpointermove={handlePointerMove}
             onpointerup={handlePointerUp}

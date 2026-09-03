@@ -32,8 +32,8 @@
   }
 </script>
 
-<div class="picker-overlay" onclick={(e: MouseEvent) => onDone(e)} role="dialog" aria-label="Exercise picker">
-  <div class="picker-sheet" onclick={(e: MouseEvent) => e.stopPropagation()} role="document">
+<div class="picker-overlay" onclick={(e) => e.target === e.currentTarget && onDone(e)} role="dialog" aria-label="Exercise picker" tabindex="-1" onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onDone(e)}>
+  <div class="picker-sheet">
     <div class="picker-header">
       <h2 class="picker-title">Add Exercises</h2>
       <button class="done-btn" onclick={(e: MouseEvent) => onDone(e)}>Done</button>

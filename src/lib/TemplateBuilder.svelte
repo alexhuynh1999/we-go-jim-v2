@@ -22,7 +22,9 @@
     onCancel = () => {},
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let name = $state(initialName);
+  // svelte-ignore state_referenced_locally
   let templateExercises = $state<(TemplateExercise & { exerciseName: string })[]>(
     initialExercises.map((te) => ({
       ...te,
@@ -107,8 +109,8 @@
   const isValid = $derived(name.trim().length > 0 && templateExercises.length > 0);
 </script>
 
-<div class="builder-overlay" onclick={(e: MouseEvent) => onCancel()} role="dialog" aria-label="Template builder">
-  <div class="builder-sheet" onclick={(e: MouseEvent) => e.stopPropagation()} role="document">
+<div class="builder-overlay" onclick={(e) => e.target === e.currentTarget && onCancel()} role="dialog" aria-label="Template builder" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && onCancel()}>
+  <div class="builder-sheet">
     <div class="builder-header">
       <h2 class="builder-title">Template Builder</h2>
       <button class="cancel-btn" onclick={(e: MouseEvent) => onCancel()}>
@@ -165,9 +167,10 @@
               </div>
               <div class="te-config">
                 <div class="config-field">
-                  <label class="config-label">Equipment</label>
+                  <label class="config-label" for="equipment-{i}">Equipment</label>
                   <select
                     class="config-select"
+                    id="equipment-{i}"
                     value={te.equipment}
                     onchange={(e) => updateEquipment(i, (e.target as HTMLSelectElement).value as Equipment)}
                   >
@@ -177,7 +180,8 @@
                   </select>
                 </div>
                 <div class="config-field">
-                  <label class="config-label">Sets</label>
+                  <!-- svelte-ignore a11y_label_has_associated_control -->
+            <label class="config-label">Sets</label>
                   <div class="stepper">
                     <button
                       class="stepper-btn"
@@ -214,8 +218,8 @@
 </div>
 
 {#if showPicker}
-  <div class="picker-wrapper" onclick={() => (showPicker = false)} role="dialog" aria-label="Exercise picker">
-    <div class="picker-sheet" onclick={(e) => e.stopPropagation()} role="document">
+  <div class="picker-wrapper" onclick={(e) => e.target === e.currentTarget && (showPicker = false)} role="dialog" aria-label="Exercise picker" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && (showPicker = false)}>
+    <div class="picker-sheet">
       {#key showPicker}
         <ExercisePickerInline
           onAdd={handleAddExercise}

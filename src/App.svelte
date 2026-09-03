@@ -308,6 +308,7 @@
     showTemplateBuilder = false;
     saveAsTemplateData = null;
     historyTemplateData = null;
+    templateRefreshVersion++;
   }
 
   function handleCloseTemplateBuilder() {
@@ -369,7 +370,7 @@
 <div class="app-shell">
   <!-- Workout in progress pill -->
   {#if workoutActive && workoutPhase !== "summary"}
-    <div class="workout-pill" onclick={handlePillClick}>
+    <div class="workout-pill" onclick={handlePillClick} role="button" tabindex="0" onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handlePillClick()}>
       <span class="pill-dot">●</span>
       <span>Workout in progress</span>
     </div>
@@ -414,8 +415,8 @@
 
   <!-- Exercise Picker (overlay, shown during picker phase) -->
   {#if workoutPhase === "picker"}
-    <div class="picker-overlay" onclick={startSession} role="dialog" aria-label="Exercise picker">
-      <div class="picker-sheet" onclick={(e) => e.stopPropagation()} role="document">
+    <div class="picker-overlay" onclick={(e) => e.target === e.currentTarget && startSession()} role="dialog" aria-label="Exercise picker" tabindex="-1" onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && startSession()}>
+      <div class="picker-sheet">
         <div class="picker-header">
           <h2 class="picker-title">Add Exercises</h2>
           <div class="picker-header-actions">
@@ -454,8 +455,8 @@
 
   <!-- Abandon confirmation dialog -->
   {#if showAbandonConfirm}
-    <div class="abandon-overlay" onclick={handleAbandonContinue} role="dialog" aria-label="Abandon workout confirmation">
-      <div class="abandon-sheet" onclick={(e) => e.stopPropagation()} role="document">
+    <div class="abandon-overlay" onclick={(e) => e.target === e.currentTarget && handleAbandonContinue()} role="dialog" aria-label="Abandon workout confirmation" tabindex="-1" onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleAbandonContinue()}>
+      <div class="abandon-sheet">
         <div class="abandon-icon-wrap">
           <span class="material-symbols-outlined abandon-icon">warning</span>
         </div>

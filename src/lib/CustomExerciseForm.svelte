@@ -90,8 +90,8 @@
   const isValid = $derived(name.trim().length > 0);
 </script>
 
-<div class="form-overlay" onclick={onCancel} role="dialog" aria-label="Create custom exercise" tabindex="-1">
-  <div class="form-sheet" onclick={(e) => e.stopPropagation()} role="document">
+<div class="form-overlay" onclick={(e) => e.target === e.currentTarget && onCancel()} role="dialog" aria-label="Create custom exercise" tabindex="-1" onkeydown={(e) => e.key === 'Escape' && onCancel()}>
+  <div class="form-sheet">
     <div class="form-header">
       <h2 class="form-title">Create Exercise</h2>
       <button class="cancel-btn" onclick={onCancel}>
@@ -114,6 +114,7 @@
 
       <!-- Fields (fixed order: weight, reps, time, distance, notes) -->
       <div class="field-group">
+  <!-- svelte-ignore a11y_label_has_associated_control -->
         <label class="field-label">Input Fields</label>
         <p class="field-hint">What inputs should each set have?</p>
         <div class="chip-grid">
@@ -131,6 +132,7 @@
 
       <!-- Equipment -->
       <div class="field-group">
+  <!-- svelte-ignore a11y_label_has_associated_control -->
         <label class="field-label">Equipment</label>
         <p class="field-hint">What equipment does this exercise use?</p>
         <div class="chip-grid">
@@ -157,6 +159,7 @@
       {#if showAdvanced}
         <!-- Muscle Groups -->
         <div class="field-group">
+  <!-- svelte-ignore a11y_label_has_associated_control -->
           <label class="field-label">Muscle Groups</label>
           <p class="field-hint">Which muscles does this exercise target?</p>
           <div class="chip-grid">

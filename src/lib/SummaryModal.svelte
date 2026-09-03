@@ -8,6 +8,7 @@
     showSaveAsTemplate = true,
   } = $props();
 
+  // svelte-ignore state_referenced_locally
   let sessionName = $state(session?.name ?? "Quick Workout");
 
   const durationSeconds = $derived.by(() => {
@@ -50,8 +51,8 @@
 </script>
 
 {#if session}
-  <div class="modal-overlay" onclick={(e: MouseEvent) => onDone(e)} role="dialog" aria-label="Workout summary">
-    <div class="modal-sheet" onclick={(e) => e.stopPropagation()} role="document">
+  <div class="modal-overlay" onclick={(e) => e.target === e.currentTarget && onDone(e)} role="dialog" aria-label="Workout summary" tabindex="-1" onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onDone(e)}>
+    <div class="modal-sheet">
       <div class="modal-header">
         <span class="material-symbols-outlined modal-icon">celebration</span>
         <h2 class="modal-title">Workout Complete</h2>

@@ -9,6 +9,7 @@
   let {
     onStartTemplate = (_template: WorkoutTemplate) => {},
     onCreateTemplate = () => {},
+    templateRefreshVersion = 0,
   } = $props();
 
   let templates = $state<WorkoutTemplate[]>([]);
@@ -25,8 +26,9 @@
   let toastAction = $state<{ label: string; onclick: () => void } | undefined>(undefined);
   let deletedTemplateId = $state<string | null>(null);
 
-  // Load templates on mount and on visibility change
+  // Load templates on mount and when templateRefreshVersion changes
   $effect(() => {
+    templateRefreshVersion;
     loadTemplates();
   });
 
@@ -209,6 +211,8 @@
       {#each filteredTemplates as template, i}
         <div
           class="template-card-wrapper"
+          role="button"
+          tabindex="0"
           ontouchstart={(e) => handleTouchStart(e, i)}
           ontouchmove={(e) => handleTouchMove(e)}
           ontouchend={handleTouchEnd}
