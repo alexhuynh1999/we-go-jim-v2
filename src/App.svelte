@@ -34,6 +34,9 @@
   let showTemplatePreview = $state(false);
   let previewTemplate = $state<WorkoutTemplate | null>(null);
 
+  // For editing an existing template: holds the template being edited
+  let editingTemplate = $state<WorkoutTemplate | null>(null);
+
   // For "Save as Template" from summary: pre-fill builder with session data
   let saveAsTemplateData = $state<{ name: string; exercises: TemplateExercise[] } | null>(null);
 
@@ -55,6 +58,9 @@
 
   // Resumable session from IndexedDB (for resume banner and abandon protection)
   let resumableSession = $state<WorkoutSession | null>(null);
+
+  // Template refresh version (incremented on save/delete to trigger list reload)
+  let templateRefreshVersion = $state(0);
 
   // Abandon confirmation dialog
   let showAbandonConfirm = $state(false);
@@ -204,6 +210,7 @@
   // ─── Template flow ───
 
   function handleCreateTemplate() {
+    editingTemplate = null;
     saveAsTemplateData = null;
     showTemplateBuilder = true;
   }
@@ -294,18 +301,36 @@
     showTemplateBuilder = true;
   }
 
+  function handleEditTemplate(template: WorkoutTemplate) {
+    editingTemplate = template;
+    showTemplateBuilder = true;
+  }
+
   async function handleSaveTemplate(name: string, exercises: TemplateExercise[]) {
     const now = new Date().toISOString();
-    const template: WorkoutTemplate = {
-      id: crypto.randomUUID(),
-      name,
-      exercises,
-      createdAt: now,
-      lastUsedAt: now,
-      useCount: 0,
-    };
-    await saveTemplate(template);
+    if (editingTemplate) {
+      // Update existing template: preserve original ID, creation date, and use count
+      const updated: WorkoutTemplate = {
+        ...editingTemplate,
+        name,
+        exercises,
+        lastUsedAt: now,
+      };
+      await saveTemplate(updated);
+    } else {
+      // Create new template
+      const template: WorkoutTemplate = {
+        id: crypto.randomUUID(),
+        name,
+        exercises,
+        createdAt: now,
+        lastUsedAt: now,
+        useCount: 0,
+      };
+      await saveTemplate(template);
+    }
     showTemplateBuilder = false;
+    editingTemplate = null;
     saveAsTemplateData = null;
     historyTemplateData = null;
     templateRefreshVersion++;
@@ -313,6 +338,7 @@
 
   function handleCloseTemplateBuilder() {
     showTemplateBuilder = false;
+    editingTemplate = null;
     saveAsTemplateData = null;
     historyTemplateData = null;
   }
@@ -405,8 +431,10 @@
       <History onSaveAsTemplate={handleSaveAsTemplateFromHistory} />
     {:else if $currentTab === "templates"}
       <Templates
+        {templateRefreshVersion}
         onStartTemplate={handleStartTemplate}
         onCreateTemplate={handleCreateTemplate}
+        onEditTemplate={handleEditTemplate}
       />
     {:else if $currentTab === "settings"}
       <Settings onshow={showSubPage} />
@@ -446,8 +474,8 @@
   <!-- Template Builder -->
   {#if showTemplateBuilder}
     <TemplateBuilder
-      initialName={saveAsTemplateData?.name ?? historyTemplateData?.name ?? ""}
-      initialExercises={saveAsTemplateData?.exercises ?? historyTemplateData?.exercises ?? []}
+      initialName={editingTemplate?.name ?? saveAsTemplateData?.name ?? historyTemplateData?.name ?? ""}
+      initialExercises={editingTemplate?.exercises ?? saveAsTemplateData?.exercises ?? historyTemplateData?.exercises ?? []}
       onSave={handleSaveTemplate}
       onCancel={handleCloseTemplateBuilder}
     />

@@ -9,6 +9,7 @@
   let {
     onStartTemplate = (_template: WorkoutTemplate) => {},
     onCreateTemplate = () => {},
+    onEditTemplate = (_template: WorkoutTemplate) => {},
     templateRefreshVersion = 0,
   } = $props();
 
@@ -63,7 +64,8 @@
 
   async function handleEdit() {
     if (selectedTemplate) {
-      onStartTemplate(selectedTemplate);
+      onEditTemplate(selectedTemplate);
+      showActionSheet = false;
     }
   }
 
