@@ -44,7 +44,7 @@
     height: 100%;
     background: var(--primary, #334537);
     border-radius: 3px;
-    transform-origin: right center;
+    transform-origin: left center;
     transition: transform 1s linear;
   }
 
