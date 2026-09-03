@@ -17,6 +17,7 @@
   import type { Field, Equipment, MuscleGroup } from "./lib/types.js";
   import TemplateBuilder from "./lib/TemplateBuilder.svelte";
   import TemplatePreview from "./lib/TemplatePreview.svelte";
+  import { getExercise } from "./lib/exercise-store.js";
 
   const tabs = [
     { id: "home" as const, icon: "home", label: "Home" },
@@ -219,18 +220,20 @@
     showTemplatePreview = true;
   }
 
-  function startSessionFromTemplate() {
+  async function startSessionFromTemplate() {
     if (!previewTemplate) return;
     const now = new Date().toISOString();
 
-    // Create SessionExercise items from template exercises
+    // Create SessionExercise items from template exercises,
+    // looking up each exercise from the catalog for its name, fields, and muscleGroups
     const exercises: SessionExercise[] = [];
     for (const te of previewTemplate.exercises) {
+      const catalogEntry = await getExercise(te.exerciseId);
       exercises.push({
         exerciseId: te.exerciseId,
-        exerciseName: "", // Will be resolved by SessionView
-        fields: [] as Field[],
-        muscleGroups: [] as MuscleGroup[],
+        exerciseName: catalogEntry?.name ?? "Unknown Exercise",
+        fields: (catalogEntry?.fields ?? []) as Field[],
+        muscleGroups: (catalogEntry?.muscleGroups ?? []) as MuscleGroup[],
         equipment: te.equipment,
         sets: Array.from({ length: te.setCount }, () => ({})),
       });
