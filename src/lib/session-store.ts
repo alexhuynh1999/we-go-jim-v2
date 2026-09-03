@@ -1,60 +1,20 @@
 import type { WorkoutSession, WorkoutTemplate, ExerciseSet } from "./types";
 import { getHeaviestSet } from "./heaviest-set";
-
-const DB_NAME = "we-go-jim";
-const DB_VERSION = 2;
-
-const SESSIONS_STORE = "sessions";
-const TEMPLATES_STORE = "templates";
-const CUSTOM_EXERCISES_STORE = "customExercises";
-const EXERCISE_META_STORE = "exerciseMeta";
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(SESSIONS_STORE)) {
-        const store = db.createObjectStore(SESSIONS_STORE, {
-          keyPath: "id",
-        });
-        store.createIndex("startedAt", "startedAt", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(TEMPLATES_STORE)) {
-        const store = db.createObjectStore(TEMPLATES_STORE, {
-          keyPath: "id",
-        });
-        store.createIndex("lastUsedAt", "lastUsedAt", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(CUSTOM_EXERCISES_STORE)) {
-        db.createObjectStore(CUSTOM_EXERCISES_STORE, { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(EXERCISE_META_STORE)) {
-        db.createObjectStore(EXERCISE_META_STORE);
-      }
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-function getStore(
-  db: IDBDatabase,
-  storeName: string,
-  mode: IDBTransactionMode = "readonly",
-): IDBObjectStore {
-  const tx = db.transaction(storeName, mode);
-  return tx.objectStore(storeName);
-}
+import {
+  openDB,
+  getStore,
+  STORE_SESSIONS,
+  STORE_TEMPLATES,
+  STORE_CUSTOM_EXERCISES,
+  STORE_EXERCISE_META,
+} from "./db";
 
 // ─── Session operations ───
 
 export async function saveSession(session: WorkoutSession): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, SESSIONS_STORE, "readwrite");
+    const store = getStore(db, STORE_SESSIONS, "readwrite");
     const request = store.put(session);
     request.onsuccess = () => {
       db.close();
@@ -72,7 +32,7 @@ export async function loadSession(
 ): Promise<WorkoutSession | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, SESSIONS_STORE);
+    const store = getStore(db, STORE_SESSIONS);
     const request = store.get(id);
     request.onsuccess = () => {
       db.close();
@@ -88,7 +48,7 @@ export async function loadSession(
 export async function listSessions(): Promise<WorkoutSession[]> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, SESSIONS_STORE);
+    const store = getStore(db, STORE_SESSIONS);
     const index = store.index("startedAt");
     const request = index.getAll();
 
@@ -110,7 +70,7 @@ export async function listSessions(): Promise<WorkoutSession[]> {
 export async function deleteSession(id: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, SESSIONS_STORE, "readwrite");
+    const store = getStore(db, STORE_SESSIONS, "readwrite");
     const request = store.delete(id);
     request.onsuccess = () => {
       db.close();
@@ -130,7 +90,7 @@ export async function saveTemplate(
 ): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, TEMPLATES_STORE, "readwrite");
+    const store = getStore(db, STORE_TEMPLATES, "readwrite");
     const request = store.put(template);
     request.onsuccess = () => {
       db.close();
@@ -148,7 +108,7 @@ export async function loadTemplate(
 ): Promise<WorkoutTemplate | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, TEMPLATES_STORE);
+    const store = getStore(db, STORE_TEMPLATES);
     const request = store.get(id);
     request.onsuccess = () => {
       db.close();
@@ -164,7 +124,7 @@ export async function loadTemplate(
 export async function listTemplates(): Promise<WorkoutTemplate[]> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, TEMPLATES_STORE);
+    const store = getStore(db, STORE_TEMPLATES);
     const index = store.index("lastUsedAt");
     const request = index.getAll();
 
@@ -187,7 +147,7 @@ export async function listTemplates(): Promise<WorkoutTemplate[]> {
 export async function deleteTemplate(id: string): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = getStore(db, TEMPLATES_STORE, "readwrite");
+    const store = getStore(db, STORE_TEMPLATES, "readwrite");
     const request = store.delete(id);
     request.onsuccess = () => {
       db.close();
@@ -234,13 +194,13 @@ export async function clearAllData(): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(
-      [SESSIONS_STORE, TEMPLATES_STORE, CUSTOM_EXERCISES_STORE, EXERCISE_META_STORE],
+      [STORE_SESSIONS, STORE_TEMPLATES, STORE_CUSTOM_EXERCISES, STORE_EXERCISE_META],
       "readwrite",
     );
-    tx.objectStore(SESSIONS_STORE).clear();
-    tx.objectStore(TEMPLATES_STORE).clear();
-    tx.objectStore(CUSTOM_EXERCISES_STORE).clear();
-    tx.objectStore(EXERCISE_META_STORE).clear();
+    tx.objectStore(STORE_SESSIONS).clear();
+    tx.objectStore(STORE_TEMPLATES).clear();
+    tx.objectStore(STORE_CUSTOM_EXERCISES).clear();
+    tx.objectStore(STORE_EXERCISE_META).clear();
     tx.oncomplete = () => {
       db.close();
       resolve();
