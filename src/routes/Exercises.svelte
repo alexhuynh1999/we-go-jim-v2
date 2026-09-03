@@ -67,7 +67,13 @@
   }
 
   async function handleSaveCustom(exercise: Exercise) {
-    await saveCustomExercise(exercise);
+    try {
+      // Strip Svelte $state proxies — IndexedDB's structured clone algorithm
+      // cannot serialize reactive Proxy objects (same fix as #14).
+      await saveCustomExercise(JSON.parse(JSON.stringify(exercise)));
+    } catch (e) {
+      console.error("Failed to save custom exercise:", e);
+    }
     showCreateForm = false;
     await loadData();
   }

@@ -76,10 +76,10 @@
     const exercise: Exercise = {
       id: generateExerciseId(),
       name: name.trim(),
-      fields: selectedFields,
+      fields: [...selectedFields],
       muscleGroups:
-        selectedMuscleGroups.length > 0 ? selectedMuscleGroups : ["full-body"],
-      equipment: selectedEquipment,
+        selectedMuscleGroups.length > 0 ? [...selectedMuscleGroups] : ["full-body"],
+      equipment: [...selectedEquipment],
       source: "user" as ExerciseSource,
       notes: notes.trim() || undefined,
     };
