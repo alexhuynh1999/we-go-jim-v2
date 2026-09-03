@@ -5,6 +5,8 @@
 
   let {
     lastWorkout = null as WorkoutSession | null,
+    workoutCount = 0,
+    activeMinutes = 0,
     onStartWorkout = (_e: MouseEvent) => {},
     workoutActive = false,
     resumableSession = null as WorkoutSession | null,
@@ -55,7 +57,7 @@
       <div class="stat-blur"></div>
       <span class="stat-icon material-symbols-outlined">check_circle</span>
       <div class="stat-content">
-        <p class="stat-value">0</p>
+        <p class="stat-value">{workoutCount}</p>
         <p class="stat-label">Workouts</p>
       </div>
     </div>
@@ -63,7 +65,7 @@
       <div class="stat-blur stat-blur--secondary"></div>
       <span class="stat-icon stat-icon--secondary material-symbols-outlined">local_fire_department</span>
       <div class="stat-content">
-        <p class="stat-value">0</p>
+        <p class="stat-value">{activeMinutes}</p>
         <p class="stat-label">Active Min</p>
       </div>
     </div>

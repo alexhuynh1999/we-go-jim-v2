@@ -48,6 +48,10 @@
   // Last completed workout for home dashboard
   let lastWorkout = $state<WorkoutSession | null>(null);
 
+  // Home screen stats
+  let workoutCount = $state(0);
+  let activeMinutes = $state(0);
+
   // Resumable session from IndexedDB (for resume banner and abandon protection)
   let resumableSession = $state<WorkoutSession | null>(null);
 
@@ -86,15 +90,32 @@
     return () => mq.removeEventListener("change", handler);
   });
 
-  // Check for resumable session in IndexedDB on app open
+  // Check for resumable session and load dashboard data from IndexedDB on mount
   $effect(() => {
-    listSessions().then((sessions) => {
-      const inProgress = sessions.find((s) => s.endedAt === null);
-      if (inProgress) {
-        resumableSession = inProgress;
-      }
-    });
+    loadDashboardData();
   });
+
+  async function loadDashboardData() {
+    const sessions = await listSessions();
+
+    // Find any in-progress session (for resume banner)
+    const inProgress = sessions.find((s) => s.endedAt === null);
+    if (inProgress) {
+      resumableSession = inProgress;
+    }
+
+    // Compute stats from completed sessions
+    const completed = sessions.filter((s) => s.endedAt !== null);
+    workoutCount = completed.length;
+    activeMinutes = completed.reduce((total, s) => {
+      const durationMs =
+        new Date(s.endedAt!).getTime() - new Date(s.startedAt).getTime();
+      return total + Math.round(durationMs / 60000);
+    }, 0);
+
+    // Load most recent completed session as lastWorkout
+    lastWorkout = completed.length > 0 ? completed[0] : null;
+  }
 
   // Auto-save: persist the session to IndexedDB on every mutation
   $effect(() => {
@@ -274,9 +295,8 @@
   }
 
   function handleDoneSummary() {
-    if (machine.session) {
-      lastWorkout = machine.session;
-    }
+    // Refresh dashboard data from IndexedDB so stats and lastWorkout update
+    loadDashboardData();
     machine = sessionReducer(machine, { type: "ABANDON_SESSION" });
     workoutPhase = "idle";
     resumableSession = null;
@@ -357,7 +377,7 @@
     {:else if subPage === "data-management"}}
       <DataManagement onback={goBack} />
     {:else if $currentTab === "home"}
-      <Home {lastWorkout} onStartWorkout={startWorkout} {workoutActive} resumableSession={resumableSession} />
+      <Home {lastWorkout} {workoutCount} {activeMinutes} onStartWorkout={startWorkout} {workoutActive} resumableSession={resumableSession} />
     {:else if $currentTab === "history"}
       <History onSaveAsTemplate={handleSaveAsTemplateFromHistory} />
     {:else if $currentTab === "templates"}
