@@ -143,12 +143,7 @@
       </h2>
       <span class="session-duration">{formatDuration(elapsed)}</span>
     </div>
-    <div class="session-header-actions">
-      <button class="header-action-btn" onclick={() => (showPicker = true)}>
-        <span class="material-symbols-outlined">add</span>
-        <span>Exercise</span>
-      </button>
-    </div>
+
   </div>
 
   <!-- Exercise cards -->
@@ -177,6 +172,12 @@
         onCompleteSet={(_setIdx: number) => handleCompleteSet(exIdx)}
       />
     {/each}
+
+    <!-- Add exercise button at bottom of list -->
+    <button class="add-exercise-btn" onclick={() => (showPicker = true)}>
+      <span class="material-symbols-outlined">add</span>
+      <span>Exercise</span>
+    </button>
   </div>
 
   <!-- Finish button -->
@@ -237,31 +238,30 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .session-header-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .header-action-btn {
+  .add-exercise-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 14px;
-    border: 1px solid var(--outline-variant, #c3c8c1);
-    border-radius: var(--radius-md, 0.5rem);
-    background: var(--surface-container-low, #f6f3f2);
-    color: var(--on-surface, #1b1c1c);
-    font-size: 13px;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed var(--outline-variant, #c3c8c1);
+    border-radius: var(--radius-lg, 0.75rem);
+    background: transparent;
+    color: var(--on-surface-variant, #434843);
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s;
     font-family: var(--font-body, Inter, sans-serif);
+    margin-top: 12px;
   }
-  .header-action-btn:hover {
-    background: var(--surface-container, #f0eded);
+  .add-exercise-btn:hover {
+    background: var(--surface-container-low, #f6f3f2);
+    border-color: var(--outline, #737872);
   }
-  .header-action-btn .material-symbols-outlined {
-    font-size: 18px;
+  .add-exercise-btn .material-symbols-outlined {
+    font-size: 20px;
   }
 
   .exercises-list {
