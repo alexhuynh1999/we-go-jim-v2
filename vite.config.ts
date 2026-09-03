@@ -60,4 +60,5 @@ export default defineConfig({
       },
     }),
   ],
+  base: '/we-go-jim-v2/',
 });
