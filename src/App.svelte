@@ -173,10 +173,10 @@
     workoutPhase = "session";
   }
 
-  function handleFinishWorkout() {
+  async function handleFinishWorkout() {
     machine = sessionReducer(machine, { type: "FINISH_SESSION" });
     if (machine.session) {
-      saveSession(machine.session);
+      await saveSession(machine.session);
     }
     workoutPhase = "summary";
   }
