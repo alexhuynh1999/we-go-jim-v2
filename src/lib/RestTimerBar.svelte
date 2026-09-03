@@ -16,7 +16,7 @@
 
 <div class="rest-timer-bar" role="progressbar" aria-label="Rest timer" aria-valuenow={remaining} aria-valuemax={total}>
   <div class="timer-track">
-    <div class="timer-fill" style="width: {progress * 100}%"></div>
+    <div class="timer-fill" style="transform: scaleX({progress})"></div>
   </div>
   <span class="timer-text">Rest {displayTime}</span>
 </div>
@@ -38,14 +38,14 @@
     border-radius: 3px;
     background: color-mix(in srgb, var(--primary, #334537) 20%, transparent);
     overflow: hidden;
-    direction: rtl; /* reverse progress: shrinks from right to left */
   }
 
   .timer-fill {
     height: 100%;
     background: var(--primary, #334537);
     border-radius: 3px;
-    transition: width 1s linear;
+    transform-origin: right center;
+    transition: transform 1s linear;
   }
 
   .timer-text {

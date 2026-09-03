@@ -214,17 +214,19 @@
 </div>
 
 {#if showPicker}
-  <div class="picker-wrapper">
-    {#key showPicker}
-      <ExercisePickerInline
-        onAdd={handleAddExercise}
-        addedIds={new Set(templateExercises.map((te) => te.exerciseId))}
-      />
-    {/key}
-    <div class="picker-footer">
-      <button class="picker-done-btn" onclick={() => (showPicker = false)}>
-        Done Adding
-      </button>
+  <div class="picker-wrapper" onclick={() => (showPicker = false)} role="dialog" aria-label="Exercise picker">
+    <div class="picker-sheet" onclick={(e) => e.stopPropagation()} role="document">
+      {#key showPicker}
+        <ExercisePickerInline
+          onAdd={handleAddExercise}
+          addedIds={new Set(templateExercises.map((te) => te.exerciseId))}
+        />
+      {/key}
+      <div class="picker-footer">
+        <button class="picker-done-btn" onclick={() => (showPicker = false)}>
+          Done Adding
+        </button>
+      </div>
     </div>
   </div>
 {/if}
@@ -545,17 +547,27 @@
   .picker-wrapper {
     position: fixed;
     inset: 0;
+    background: rgba(0, 0, 0, 0.4);
     z-index: 450;
     display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .picker-sheet {
+    background: var(--surface, #fcf9f8);
+    border-radius: var(--radius-2xl, 1.5rem) var(--radius-2xl, 1.5rem) 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
+    overflow: hidden;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
   }
 
   .picker-footer {
     width: 100%;
-    max-width: 480px;
-    background: var(--surface, #fcf9f8);
     padding: 8px 20px 20px;
   }
 
