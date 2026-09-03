@@ -124,7 +124,9 @@
   let saveChain = Promise.resolve();
 
   function enqueueSave(session: WorkoutSession) {
-    saveChain = saveChain.then(() => saveSession(session));
+    // Serialise through JSON to strip Svelte $state proxies — IndexedDB's
+    // structured clone algorithm cannot serialize reactive Proxy objects.
+    saveChain = saveChain.then(() => saveSession(JSON.parse(JSON.stringify(session))));
   }
 
   $effect(() => {
