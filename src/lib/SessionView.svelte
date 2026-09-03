@@ -19,12 +19,16 @@
   let activeTimerExerciseIdx = $state<number | null>(null);
   let timerInterval: ReturnType<typeof setInterval> | undefined;
 
+  // Tick at ~30fps for smooth bar animation, fractional decrement per tick
+  const TICK_INTERVAL_MS = 33;
+  const DELTA_PER_TICK = TICK_INTERVAL_MS / 1000;
+
   // Set up interval when timer is running, tear down when stopped
   $effect(() => {
     if (restTimer.running) {
       timerInterval = setInterval(() => {
-        restTimer = tick(restTimer);
-      }, 1000);
+        restTimer = tick(restTimer, DELTA_PER_TICK);
+      }, TICK_INTERVAL_MS);
     } else {
       if (timerInterval) {
         clearInterval(timerInterval);

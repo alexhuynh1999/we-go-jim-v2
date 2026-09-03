@@ -5,7 +5,8 @@
   } = $props();
 
   const progress = $derived(total > 0 ? remaining / total : 0);
-  const displayTime = $derived(formatTime(remaining));
+  // Show the remaining whole seconds (ceil so "2:30" stays until 2:29.999)
+  const displayTime = $derived(formatTime(Math.ceil(remaining)));
 
   function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -45,7 +46,6 @@
     background: var(--primary, #334537);
     border-radius: 3px;
     transform-origin: left center;
-    transition: transform 1s linear;
   }
 
   .timer-text {

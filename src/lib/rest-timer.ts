@@ -29,12 +29,13 @@ export function resetTimer(timer: RestTimerState): RestTimerState {
 }
 
 /**
- * Advances the timer by one second if running.
+ * Advances the timer by the given delta (in seconds) if running.
+ * Defaults to 1 second for backward compatibility.
  * Stops the timer when it reaches 0.
  */
-export function tick(timer: RestTimerState): RestTimerState {
+export function tick(timer: RestTimerState, deltaSeconds: number = 1): RestTimerState {
   if (!timer.running) return timer;
-  const next = timer.remaining - 1;
+  const next = timer.remaining - deltaSeconds;
   if (next <= 0) {
     return { remaining: 0, total: timer.total, running: false };
   }
