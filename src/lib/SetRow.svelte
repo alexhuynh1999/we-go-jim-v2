@@ -47,6 +47,14 @@
   function updateField<K extends keyof ExerciseSet>(key: K, value: ExerciseSet[K]) {
     onUpdate({ ...set, [key]: value });
   }
+
+  const isCompleted = $derived(!!set.completed);
+
+  function handleComplete(e: MouseEvent) {
+    e.preventDefault();
+    onUpdate({ ...set, completed: !isCompleted });
+    onComplete(e);
+  }
 </script>
 
 <div class="set-row">
@@ -142,7 +150,7 @@
     {/if}
 
     {#if showComplete}
-      <button class="complete-set-btn" onclick={(e: MouseEvent) => onComplete(e)} aria-label="Complete set">
+      <button class="complete-set-btn" class:completed={isCompleted} onclick={handleComplete} aria-label={isCompleted ? 'Unmark set' : 'Complete set'}>
         <span class="material-symbols-outlined">check_circle</span>
       </button>
     {/if}
@@ -249,11 +257,20 @@
     color: var(--outline, #737872);
     padding: 4px;
     opacity: 0.6;
-    transition: opacity 0.15s, color 0.15s;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+    border-radius: var(--radius-full, 9999px);
   }
   .complete-set-btn:hover,
   .complete-set-btn:focus-visible {
     opacity: 1;
     color: var(--primary, #334537);
+  }
+  .complete-set-btn.completed {
+    opacity: 1;
+    color: var(--primary, #334537);
+    background: var(--primary-container, #c4e8ca);
+  }
+  .complete-set-btn.completed .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
   }
 </style>

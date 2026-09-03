@@ -67,6 +67,7 @@ export type ExerciseSet = {
   distance?: number;
   notes?: string;
   isWarmup?: boolean;
+  completed?: boolean;
 };
 
 export type SessionExercise = {

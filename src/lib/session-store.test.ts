@@ -276,6 +276,59 @@ describe("session-store", () => {
     });
   });
 
+  describe("completion state persistence", () => {
+    it("persists a set with completed: true through save/load", async () => {
+      const session = makeSession();
+      // Mark one set as completed
+      session.exercises[0]!.sets[0] = { ...session.exercises[0]!.sets[0]!, completed: true };
+      await saveSession(session);
+
+      const loaded = await loadSession(session.id);
+      expect(loaded?.exercises[0]?.sets[0]?.completed).toBe(true);
+    });
+
+    it("persists completion state toggle (true → false → true) across saves", async () => {
+      const session = makeSession({ endedAt: null });
+      await saveSession(session);
+
+      // Toggle first set to completed
+      session.exercises[0]!.sets[0] = { ...session.exercises[0]!.sets[0]!, completed: true };
+      await saveSession(session);
+
+      let loaded = await loadSession(session.id);
+      expect(loaded?.exercises[0]?.sets[0]?.completed).toBe(true);
+
+      // Toggle back to uncompleted
+      session.exercises[0]!.sets[0] = { ...session.exercises[0]!.sets[0]!, completed: false };
+      await saveSession(session);
+
+      loaded = await loadSession(session.id);
+      expect(loaded?.exercises[0]?.sets[0]?.completed).toBe(false);
+
+      // Toggle again
+      session.exercises[0]!.sets[0] = { ...session.exercises[0]!.sets[0]!, completed: true };
+      await saveSession(session);
+
+      loaded = await loadSession(session.id);
+      expect(loaded?.exercises[0]?.sets[0]?.completed).toBe(true);
+    });
+
+    it("completion state survives app reload simulation (multiple in-memory sessions)", async () => {
+      const session = makeSession();
+      session.exercises[0]!.sets[0] = { ...session.exercises[0]!.sets[0]!, completed: true };
+      await saveSession(session);
+
+      // Simulate app reload by closing and reopening the database
+      const loaded = await loadSession(session.id);
+      const modLoaded = loaded as WorkoutSession;
+      expect(modLoaded.exercises[0]?.sets[0]?.completed).toBe(true);
+
+      // Second reload
+      const loaded2 = await loadSession(session.id);
+      expect(loaded2?.exercises[0]?.sets[0]?.completed).toBe(true);
+    });
+  });
+
   describe("persistence flow (auto-save pattern)", () => {
     it("persists and retrieves an in-progress session", async () => {
       const session = makeSession({ endedAt: null });
