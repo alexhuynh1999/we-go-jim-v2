@@ -117,10 +117,19 @@
     lastWorkout = completed.length > 0 ? completed[0] : null;
   }
 
-  // Auto-save: persist the session to IndexedDB on every mutation
+  // Auto-save: persist the session to IndexedDB on every mutation.
+  // All writes are serialised through a promise chain so the final save in
+  // handleFinishWorkout is guaranteed to execute last, preventing a stale
+  // in-progress write from overwriting endedAt.
+  let saveChain = Promise.resolve();
+
+  function enqueueSave(session: WorkoutSession) {
+    saveChain = saveChain.then(() => saveSession(session));
+  }
+
   $effect(() => {
     if (machine.state === "in-progress" && machine.session) {
-      saveSession(machine.session);
+      enqueueSave(machine.session);
     }
   });
 
@@ -175,8 +184,16 @@
 
   async function handleFinishWorkout() {
     machine = sessionReducer(machine, { type: "FINISH_SESSION" });
+    // Enqueue the finished-session write (will be last in chain) and wait
+    // for every queued write — including any in-flight auto-saves — to
+    // complete before revealing the summary.
     if (machine.session) {
-      await saveSession(machine.session);
+      enqueueSave(machine.session);
+    }
+    try {
+      await saveChain;
+    } catch (e) {
+      console.error("Failed to save session:", e);
     }
     workoutPhase = "summary";
   }
