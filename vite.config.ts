@@ -21,8 +21,8 @@ export default defineConfig({
         background_color: "#16213e",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
-        scope: "/",
+        start_url: "/we-go-jim-v2/",
+        scope: "/we-go-jim-v2/",
         icons: [
           {
             src: "pwa-192x192.png",
