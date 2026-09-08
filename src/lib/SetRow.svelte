@@ -268,7 +268,7 @@
   .complete-set-btn.completed {
     opacity: 1;
     color: var(--primary, #334537);
-    background: var(--primary-container, #c4e8ca);
+    background: var(--primary-fixed-dim, #b7ccb9);
   }
   .complete-set-btn.completed .material-symbols-outlined {
     font-variation-settings: 'FILL' 1;
