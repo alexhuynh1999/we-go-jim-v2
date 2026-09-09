@@ -3,6 +3,7 @@ import "fake-indexeddb/auto";
 import {
   exportAllData,
   importAllData,
+  validateImportItems,
   type BackupData,
   validateBackup,
   getBackupFilename,
@@ -199,6 +200,97 @@ describe("data-management", () => {
     });
   });
 
+  describe("validateImportItems", () => {
+    it("returns no errors for valid backup", () => {
+      const backup: BackupData = {
+        version: CURRENT_VERSION,
+        exportedAt: "2024-06-01T12:00:00Z",
+        workouts: [{ id: "s1", startedAt: "", endedAt: null, templateId: null, name: "", exercises: [] }],
+        templates: [{ id: "t1", name: "", exercises: [], createdAt: "", lastUsedAt: "", useCount: 0 }],
+        customExercises: [{ id: "e1", name: "", fields: [], muscleGroups: [], equipment: [], source: "user" }],
+        settings: {},
+      };
+      expect(validateImportItems(backup)).toEqual([]);
+    });
+
+    it("reports workout missing id", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [{} as any],
+        templates: [],
+        customExercises: [],
+        settings: {},
+      });
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.type).toBe("workout");
+    });
+
+    it("reports workout with null id", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [{ id: null } as any],
+        templates: [],
+        customExercises: [],
+        settings: {},
+      });
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.id).toBeNull();
+    });
+
+    it("reports workout with empty string id", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [{ id: "" } as any],
+        templates: [],
+        customExercises: [],
+        settings: {},
+      });
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.type).toBe("workout");
+    });
+
+    it("reports template missing id", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [],
+        templates: [{} as any],
+        customExercises: [],
+        settings: {},
+      });
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.type).toBe("template");
+    });
+
+    it("reports custom exercise missing id", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [],
+        templates: [],
+        customExercises: [{} as any],
+        settings: {},
+      });
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.type).toBe("customExercise");
+    });
+
+    it("reports multiple errors across all types", () => {
+      const errors = validateImportItems({
+        version: CURRENT_VERSION,
+        exportedAt: "",
+        workouts: [{ id: "ok" } as any, {} as any],
+        templates: [{ id: null } as any],
+        customExercises: [{ id: "" } as any, {} as any],
+        settings: {},
+      });
+      expect(errors).toHaveLength(4);
+    });
+  });
+
   describe("importAllData", () => {
     it("replaces all existing data with backup data", async () => {
       // Seed some data
@@ -272,6 +364,51 @@ describe("data-management", () => {
       await importAllData(backup);
       expect(await listSessions()).toEqual([]);
       expect(await listTemplates()).toEqual([]);
+    });
+
+    it("rejects import with invalid items BEFORE clearing existing data", async () => {
+      // Seed data first
+      await saveSession(makeSession({ id: "keep-me" }));
+
+      const bad: BackupData = {
+        version: CURRENT_VERSION,
+        exportedAt: "2024-06-01T12:00:00Z",
+        workouts: [{} as any],
+        templates: [],
+        customExercises: [],
+        settings: {},
+      };
+
+      await expect(importAllData(bad)).rejects.toThrow(/invalid or missing/);
+
+      // Existing data should still be intact
+      const sessions = await listSessions();
+      expect(sessions).toHaveLength(1);
+      expect(sessions[0]?.id).toBe("keep-me");
+    });
+
+    it("error message lists all broken items", async () => {
+      const backup: BackupData = {
+        version: CURRENT_VERSION,
+        exportedAt: "2024-06-01T12:00:00Z",
+        workouts: [{} as any],
+        templates: [{ id: null } as any],
+        customExercises: [{ id: "" } as any],
+        settings: {},
+      };
+
+      let error: Error | null = null;
+      try {
+        await importAllData(backup);
+      } catch (e) {
+        error = e as Error;
+      }
+
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain("3 item(s)");
+      expect(error!.message).toContain("workout[0]");
+      expect(error!.message).toContain("template[0]");
+      expect(error!.message).toContain("customExercise[0]");
     });
   });
 });

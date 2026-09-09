@@ -66,6 +66,16 @@ export interface ValidationResult {
 }
 
 /**
+ * Result of individual item validation.
+ */
+export interface ImportItemError {
+  index: number;
+  type: "workout" | "template" | "customExercise";
+  id: string | null | undefined;
+  reason: string;
+}
+
+/**
  * Validates a backup JSON structure.
  * Checks: required keys, version compatibility, array types.
  */
@@ -120,11 +130,74 @@ export function validateBackup(data: unknown): ValidationResult {
 }
 
 /**
+ * Validate every individual item in a backup.
+ * Returns a list of items with invalid or missing IDs.
+ */
+export function validateImportItems(backup: BackupData): ImportItemError[] {
+  const errors: ImportItemError[] = [];
+
+  for (let i = 0; i < backup.workouts.length; i++) {
+    const w = backup.workouts[i];
+    if (typeof w?.id !== "string" || !w.id) {
+      errors.push({
+        index: i,
+        type: "workout",
+        id: w?.id ?? null,
+        reason: !w ? "item is null or undefined" : typeof w.id !== "string" ? `'id' is type '${typeof w.id}', expected string` : "'id' is an empty string",
+      });
+    }
+  }
+
+  for (let i = 0; i < backup.templates.length; i++) {
+    const t = backup.templates[i];
+    if (typeof t?.id !== "string" || !t.id) {
+      errors.push({
+        index: i,
+        type: "template",
+        id: t?.id ?? null,
+        reason: !t ? "item is null or undefined" : typeof t.id !== "string" ? `'id' is type '${typeof t.id}', expected string` : "'id' is an empty string",
+      });
+    }
+  }
+
+  for (let i = 0; i < backup.customExercises.length; i++) {
+    const e = backup.customExercises[i];
+    const obj = e as Record<string, unknown> | null | undefined;
+    if (typeof obj?.id !== "string" || !obj.id) {
+      errors.push({
+        index: i,
+        type: "customExercise",
+        id: obj?.id as string | null | undefined ?? null,
+        reason: !obj ? "item is null or undefined" : typeof obj.id !== "string" ? `'id' is type '${typeof obj.id}', expected string` : "'id' is an empty string",
+      });
+    }
+  }
+
+  return errors;
+}
+
+/**
  * Imports backup data, replacing all local data.
- * The caller MUST validate before calling this.
+ * Validates every item before clearing, so nothing is lost on failure.
  */
 export async function importAllData(backup: BackupData): Promise<void> {
-  // Clear existing data
+  // Validate every item BEFORE clearing
+  const itemErrors = validateImportItems(backup);
+  if (itemErrors.length > 0) {
+    const details = itemErrors
+      .slice(0, 5)
+      .map((e) => `  ${e.type}[${e.index}]: ${e.reason} (id=${JSON.stringify(e.id)})`)
+      .join("\n");
+    const suffix = itemErrors.length > 5
+      ? `\n  ... and ${itemErrors.length - 5} more`
+      : "";
+    throw new Error(
+      `Import failed: ${itemErrors.length} item(s) have invalid or missing 'id' fields. ` +
+      `Every workout, template, and custom exercise needs a valid string 'id'.\n${details}${suffix}`,
+    );
+  }
+
+  // Clear existing data only after validation passes
   await clearAllData();
 
   // Import settings
