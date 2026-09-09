@@ -410,5 +410,49 @@ describe("data-management", () => {
       expect(error!.message).toContain("template[0]");
       expect(error!.message).toContain("customExercise[0]");
     });
+
+    it("strips Svelte 5 Proxy wrappers before storing in IndexedDB", async () => {
+      // Simulate a Svelte 5 $state()-wrapped backup object.
+      // Svelte 5 wraps assigned objects in deep Proxies. IndexedDB's
+      // structured clone algorithm throws "Proxy object could not be cloned"
+      // on Proxy-wrapped objects, so importAllData must strip them first.
+
+      // Build a plain object graph, then wrap every nested object in a Proxy
+      const plainExercise = { id: "e1", name: "Curls", fields: ["reps"], muscleGroups: ["arms"], equipment: ["dumbbell"], source: "user" as const };
+      const plainWorkout = { id: "w1", startedAt: "2024-01-01T00:00:00Z", endedAt: null, templateId: null, name: "Arms Day", exercises: [] };
+      const plainTemplate = { id: "t1", name: "Push", exercises: [], createdAt: "2024-01-01T00:00:00Z", lastUsedAt: "2024-01-01T00:00:00Z", useCount: 0 };
+
+      const proxyExercise = new Proxy(plainExercise, {});
+      const proxyWorkout = new Proxy(plainWorkout, {});
+      const proxyTemplate = new Proxy(plainTemplate, {});
+      const proxySettings = new Proxy({}, {});
+
+      const proxyBackup = new Proxy(
+        {
+          version: CURRENT_VERSION,
+          exportedAt: "2024-06-01T00:00:00Z",
+          workouts: [proxyWorkout],
+          templates: [proxyTemplate],
+          customExercises: [proxyExercise],
+          settings: proxySettings,
+        },
+        {},
+      ) as unknown as BackupData;
+
+      // This would throw "Proxy object could not be cloned" without the fix
+      await importAllData(proxyBackup);
+
+      const sessions = await listSessions();
+      expect(sessions).toHaveLength(1);
+      expect(sessions[0]?.id).toBe("w1");
+
+      const templates = await listTemplates();
+      expect(templates).toHaveLength(1);
+      expect(templates[0]?.id).toBe("t1");
+
+      const exercises = await getCustomExercises();
+      expect(exercises).toHaveLength(1);
+      expect(exercises[0]?.name).toBe("Curls");
+    });
   });
 });
