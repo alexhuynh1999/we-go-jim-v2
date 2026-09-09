@@ -32,16 +32,10 @@ a {
   -webkit-user-select: none;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling – hide the visual bar, keep scrolling */
 ::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--outline-variant);
-  border-radius: 2px;
+  width: 0;
+  display: none;
 }
 
 /* Remove number input spinners for cleaner workout inputs */
