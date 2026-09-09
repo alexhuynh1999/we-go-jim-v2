@@ -177,10 +177,24 @@ export function validateImportItems(backup: BackupData): ImportItemError[] {
 }
 
 /**
+ * Deep-clone a value, stripping Svelte 5 Proxy wrappers that the
+ * structured clone algorithm (used by IndexedDB) cannot handle.
+ * Uses JSON round-trip since structuredClone() itself throws on Proxies.
+ */
+function stripProxies<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
+/**
  * Imports backup data, replacing all local data.
  * Validates every item before clearing, so nothing is lost on failure.
  */
 export async function importAllData(backup: BackupData): Promise<void> {
+  // Deep-clone to strip Svelte 5 $state() Proxy wrappers.
+  // IndexedDB's structured clone algorithm throws "Proxy object could not be cloned"
+  // on Proxy-wrapped objects.
+  backup = stripProxies(backup);
+
   // Validate every item BEFORE clearing
   const itemErrors = validateImportItems(backup);
   if (itemErrors.length > 0) {
