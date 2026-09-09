@@ -5,7 +5,7 @@
   import ExerciseCard from "./ExerciseCard.svelte";
   import ExercisePicker from "./ExercisePicker.svelte";
   import { getHeaviestSetForExercise } from "./session-store";
-  import { createRestTimer, startTimer, tick } from "./rest-timer";
+  import { createRestTimer, startTimer } from "./rest-timer";
   import { settings } from "./settings";
 
   let {
@@ -17,17 +17,27 @@
   // ─── Rest timer state ───
   let restTimer = $state<RestTimerState>(createRestTimer(150));
   let activeTimerExerciseIdx = $state<number | null>(null);
+  let restTimerStartedAt = $state<number | null>(null);
   let timerInterval: ReturnType<typeof setInterval> | undefined;
 
-  // Tick at ~30fps for smooth bar animation, fractional decrement per tick
+  // Tick at ~30fps for smooth bar animation; compute remaining from wall clock
+  // so the timer correctly accounts for time while the app was backgrounded.
   const TICK_INTERVAL_MS = 33;
-  const DELTA_PER_TICK = TICK_INTERVAL_MS / 1000;
 
   // Set up interval when timer is running, tear down when stopped
   $effect(() => {
     if (restTimer.running) {
+      const startedAt = restTimerStartedAt!;
       timerInterval = setInterval(() => {
-        restTimer = tick(restTimer, DELTA_PER_TICK);
+        const elapsedSeconds = (Date.now() - startedAt) / 1000;
+        const remaining = Math.max(0, restTimer.total - elapsedSeconds);
+        if (remaining <= 0) {
+          restTimer = { remaining: 0, total: restTimer.total, running: false };
+          activeTimerExerciseIdx = null;
+          restTimerStartedAt = null;
+        } else {
+          restTimer = { ...restTimer, remaining };
+        }
       }, TICK_INTERVAL_MS);
     } else {
       if (timerInterval) {
@@ -51,6 +61,7 @@
     // Start or reset the rest timer
     const total = $settings.restTimerSeconds;
     restTimer = startTimer(createRestTimer(total));
+    restTimerStartedAt = Date.now();
     activeTimerExerciseIdx = exIdx;
   }
 
