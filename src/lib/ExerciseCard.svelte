@@ -2,6 +2,7 @@
   import type { SessionExercise, ExerciseSet } from "./types";
   import SetRow from "./SetRow.svelte";
   import RestTimerBar from "./RestTimerBar.svelte";
+  import { maybeAutofillSet } from "./autofill-set.js";
 
   let {
     exercise = {
@@ -61,7 +62,8 @@
         index={i}
         showComplete={true}
         onUpdate={(updated: ExerciseSet) => {
-          const newSets = exercise.sets.map((s, idx) => (idx === i ? updated : s));
+          const resolvedSet = maybeAutofillSet(exercise.sets, updated, i, exercise.fields);
+          const newSets = exercise.sets.map((s, idx) => (idx === i ? resolvedSet : s));
           onUpdateSets(newSets);
         }}
         onDelete={(e: MouseEvent) => {
